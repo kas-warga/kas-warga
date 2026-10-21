@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kas Warga — RT 05 / RW 02</title>
+  <title>Kas Warga — RT 17 / RW 45</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Custom Theme Config based on Logo (Deep Royal Blue & Coin Gold) -->
+  <!-- Custom Tailwind Configuration (Kas Warga Theme Colors) -->
   <script>
     tailwind.config = {
       theme: {
@@ -19,11 +19,12 @@
               100: '#dbeafe',
               500: '#2563eb',
               600: '#1d4ed8',
-              800: '#1e40af',
-              900: '#0f172a', // Deep Royal Blue / Slate Dark
-              blue: '#1e3a8a', // Royal Navy Blue
+              800: '#1e3a8a',
+              900: '#0f2355', // Deep Royal Blue khas Logo Kas Warga
+              blue: '#163988', // Navy Accent
             },
             gold: {
+              300: '#fde047',
               400: '#fbbf24',
               500: '#f59e0b',
               600: '#d97706',
@@ -34,7 +35,7 @@
     }
   </script>
 
-  <!-- React & ReactDOM CDN -->
+  <!-- React 18 & ReactDOM CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   
@@ -45,9 +46,10 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    /* Custom Scrollbar Styling */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
     ::-webkit-scrollbar-track {
       background: #0f172a;
@@ -68,63 +70,67 @@
   <script type="text/babel">
     const { useState, useEffect, useMemo } = React;
 
-    // --- INITIAL MOCK DATA SET (RT 05 / RW 02) ---
+    // --- DATA AWAL NYATA INTERAKTIF (RT 17 / RW 45) ---
     const INITIAL_HOUSES = [
-      { id: 'H01', block: 'A-01', owner: 'Bpk. Budi Santoso', phone: '081234567890', status: 'Tetap', residents: 4, isOccupied: true },
-      { id: 'H02', block: 'A-02', owner: 'Ibu Siti Rahma', phone: '081298765432', status: 'Kontrak', residents: 3, isOccupied: true },
-      { id: 'H03', block: 'A-03', owner: 'Bpk. Ahmad Dahlan', phone: '081311223344', status: 'Tetap', residents: 5, isOccupied: true },
-      { id: 'H04', block: 'B-01', owner: 'Drs. Bambang Wijaya', phone: '081555667788', status: 'Tetap', residents: 2, isOccupied: true },
-      { id: 'H05', block: 'B-02', owner: 'Rumah Kosong (Bpk. Roy)', phone: '081700998877', status: 'Kosong', residents: 0, isOccupied: false },
+      { id: 'H01', block: 'A1/02', owner: 'Budi Santoso', phone: '081234567890', status: 'Tetap', residents: 4, isOccupied: true },
+      { id: 'H02', block: 'A1/03', owner: 'Siti Rahma', phone: '081298765432', status: 'Kontrak', residents: 3, isOccupied: true },
+      { id: 'H03', block: 'A2/01', owner: 'Ahmad Dahlan', phone: '081311223344', status: 'Tetap', residents: 5, isOccupied: true },
+      { id: 'H04', block: 'B1/05', owner: 'Bambang Wijaya', phone: '081555667788', status: 'Tetap', residents: 2, isOccupied: true },
+      { id: 'H05', block: 'B2/08', owner: 'Rumah Kosong (Bpk. Roy)', phone: '081700998877', status: 'Kosong', residents: 0, isOccupied: false },
     ];
 
     const INITIAL_BILLINGS = [
-      { id: 'BILL-01', name: 'Iuran Keamanan & Kebersihan', amount: 75000, type: 'Rutin Bulanan', target: 'Semua Warga', status: 'Aktif' },
-      { id: 'BILL-02', name: 'Kas Rutin RT 05', amount: 25000, type: 'Rutin Bulanan', target: 'Semua Warga', status: 'Aktif' },
-      { id: 'BILL-03', name: 'Sumbangan Perayaan HUT RI', amount: 50000, type: 'Insidental', target: 'Warga Tetap', status: 'Selesai' },
+      { id: 'BILL-01', name: 'Iuran Keamanan & Kebersihan', amount: 75000, type: 'Rutin Bulanan', target: 'Semua Warga', period: 'Oktober 2026', status: 'Aktif' },
+      { id: 'BILL-02', name: 'Kas Rutin RT 17', amount: 25000, type: 'Rutin Bulanan', target: 'Semua Warga', period: 'Oktober 2026', status: 'Aktif' },
+      { id: 'BILL-03', name: 'Sumbangan Perbaikan Lampu Jalan', amount: 20000, type: 'Insidental', target: 'Warga Tetap', period: 'Oktober 2026', status: 'Aktif' },
     ];
 
     const INITIAL_PAYMENTS = [
-      { id: 'PAY-101', date: '2026-10-21', house: 'A-01 (Budi Santoso)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Transfer QRIS', status: 'Menunggu Verifikasi', proof: 'https://placehold.co/300x400/1e3a8a/ffffff?text=Bukti+Transfer+QRIS' },
-      { id: 'PAY-102', date: '2026-10-20', house: 'A-02 (Siti Rahma)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Transfer Bank BCA', status: 'Menunggu Verifikasi', proof: 'https://placehold.co/300x400/1e3a8a/ffffff?text=Bukti+Transfer+BCA' },
-      { id: 'PAY-100', date: '2026-10-18', house: 'A-03 (Ahmad Dahlan)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Tunai (Petugas)', status: 'Terverifikasi', proof: null },
+      { id: 'PAY-101', date: '2026-10-21', house: 'A1/02 (Budi Santoso)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Transfer QRIS RT 17', status: 'Menunggu Verifikasi', proof: 'https://placehold.co/300x400/0f2355/ffffff?text=Resi+QRIS+Budi+Santoso' },
+      { id: 'PAY-102', date: '2026-10-20', house: 'A1/03 (Siti Rahma)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Transfer Bank Mandiri', status: 'Menunggu Verifikasi', proof: 'https://placehold.co/300x400/0f2355/ffffff?text=Resi+M-Banking+Siti' },
+      { id: 'PAY-100', date: '2026-10-18', house: 'A2/01 (Ahmad Dahlan)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Tunai (Bendahara)', status: 'Terverifikasi', proof: null },
     ];
 
     const INITIAL_CASHBOOK = [
-      { id: 'TRX-001', date: '2026-10-01', type: 'Pemasukan', category: 'Iuran Warga', description: 'Pembayaran Iuran A-03 Ahmad Dahlan', amount: 100000 },
-      { id: 'TRX-002', date: '2026-10-05', type: 'Pengeluaran', category: 'Keamanan', description: 'Gaji Petugas Satpam (2 Orang)', amount: 1500000 },
-      { id: 'TRX-003', date: '2026-10-10', type: 'Pengeluaran', category: 'Kebersihan', description: 'Pengangkutan Sampah Restribusi DLH', amount: 400000 },
-      { id: 'TRX-004', date: '2026-10-15', type: 'Pemasukan', category: 'Sewa Lapangan', description: 'Sewa Lapangan Badminton Warga', amount: 250000 },
+      { id: 'TRX-001', date: '2026-10-01', type: 'Pemasukan', category: 'Iuran Warga', description: 'Pembayaran Iuran A2/01 Ahmad Dahlan', amount: 100000 },
+      { id: 'TRX-002', date: '2026-10-05', type: 'Pengeluaran', category: 'Keamanan', description: 'Honor Operasional Satpam RT 17 (2 Orang)', amount: 1800000 },
+      { id: 'TRX-003', date: '2026-10-10', type: 'Pengeluaran', category: 'Kebersihan', description: 'Retribusi Pengangkutan Sampah DLH', amount: 600000 },
+      { id: 'TRX-004', date: '2026-10-15', type: 'Pemasukan', category: 'Sewa Fasilitas', description: 'Sewa Lapangan Bulutangkis Warga', amount: 350000 },
+    ];
+
+    const INITIAL_ANNOUNCEMENTS = [
+      { id: 'ANN-01', title: 'Kerja Bakti Minggu Pagi Lingkungan RT 17', date: '2026-10-20', author: 'Pak Sarjito (Ketua RT 17)', category: 'Kegiatan', content: 'Diimbau kepada seluruh warga RT 17 / RW 45 untuk menghadiri kerja bakti pembersihan selokan pada hari Minggu pukul 07:00 WIB di lapangan utama.' },
+      { id: 'ANN-02', title: 'Transparansi LPJ Keuangan Kas Triwulan III', date: '2026-10-15', author: 'Budi Santoso (Bendahara RT)', category: 'LPJ Keuangan', content: 'Laporan Pertanggungjawaban (LPJ) keuangan periode Juli - September 2026 telah terverifikasi balans dan dapat diunduh oleh seluruh warga.' },
     ];
 
     const INITIAL_REGISTRATIONS = [
-      { id: 'REG-01', name: 'Joko Susilo', block: 'B-03', type: 'Warga Baru (Kontrak)', phone: '082199887766', date: '2026-10-20', status: 'Pending' },
-      { id: 'REG-02', name: 'Agus Setiawan', block: 'A-04', type: 'Warga Baru (Pindahan)', phone: '085711223344', date: '2026-10-19', status: 'Pending' },
+      { id: 'REG-01', name: 'Dr. Hendra Gunawan', block: 'B1/02', type: 'Warga Baru (Pindahan)', phone: '082199887766', date: '2026-10-21', status: 'Pending' },
+      { id: 'REG-02', name: 'Dewi Lestari', block: 'A2/05', type: 'Warga Baru (Kontrak)', phone: '085711223344', date: '2026-10-19', status: 'Pending' },
     ];
 
-    // --- REUSABLE BRAND LOGO COMPONENT (EXACT ICON-192 STYLE) ---
-    function KasWargaLogo({ className = "w-10 h-10", textSize = "text-xs" }) {
+    // --- KOMPONEN LOGO KAS WARGA (SAMA DENGAN ICON-192.PNG) ---
+    function KasWargaLogo({ className = "w-10 h-10", textSize = "text-[9px]" }) {
       return (
-        <div className={`relative bg-gradient-to-br from-blue-800 via-brand-blue to-slate-900 rounded-2xl p-2 shadow-xl border border-blue-400/30 flex flex-col items-center justify-center text-center overflow-hidden ${className}`}>
-          {/* House Vector Outline Silhouette */}
-          <div className="flex items-end justify-center gap-1 opacity-90 mb-1">
-            <div className="w-3 h-3 bg-white rounded-t-sm relative">
-              <div className="absolute -top-1.5 -left-0.5 w-4 h-2 bg-amber-500 clip-triangle" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+        <div className={`relative bg-gradient-to-br from-blue-900 via-brand-blue to-slate-900 rounded-2xl p-1.5 shadow-xl border border-blue-400/30 flex flex-col items-center justify-center text-center overflow-hidden flex-shrink-0 ${className}`}>
+          {/* Siluet Atap Rumah */}
+          <div className="flex items-end justify-center gap-0.5 opacity-90 mb-0.5">
+            <div className="w-2.5 h-2.5 bg-white rounded-t-sm relative">
+              <div className="absolute -top-1 -left-0.5 w-3.5 h-1.5 bg-amber-500" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
             </div>
-            <div className="w-4 h-4 bg-white rounded-t-sm relative z-10">
-              <div className="absolute -top-2 -left-0.5 w-5 h-2.5 bg-orange-600 clip-triangle" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+            <div className="w-3.5 h-3.5 bg-white rounded-t-sm relative z-10">
+              <div className="absolute -top-1.5 -left-0.5 w-4.5 h-2 bg-orange-600" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
             </div>
-            <div className="w-3 h-3 bg-white rounded-t-sm relative">
-              <div className="absolute -top-1.5 -left-0.5 w-4 h-2 bg-amber-500 clip-triangle" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+            <div className="w-2.5 h-2.5 bg-white rounded-t-sm relative">
+              <div className="absolute -top-1 -left-0.5 w-3.5 h-1.5 bg-amber-500" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
             </div>
           </div>
           
-          {/* Golden Coin Rp Badge */}
-          <div className="bg-gradient-to-tr from-amber-600 via-gold-400 to-yellow-200 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg border border-amber-300 flex items-center justify-center gap-0.5 -mt-2 z-20">
+          {/* Koin Emas Rp Badge */}
+          <div className="bg-gradient-to-tr from-amber-600 via-gold-400 to-yellow-200 text-slate-950 font-black text-[8px] px-1.5 py-0.2 rounded-full shadow-md border border-amber-300 flex items-center justify-center gap-0.5 -mt-1.5 z-20">
             <span>Rp</span>
           </div>
 
-          {/* Text Title */}
-          <span className={`font-black text-white tracking-wider leading-none mt-1 uppercase ${textSize}`}>
+          <span className={`font-black text-white tracking-wider leading-none mt-0.5 uppercase ${textSize}`}>
             KAS WARGA
           </span>
         </div>
@@ -132,27 +138,42 @@
     }
 
     function App() {
-      // System View State: 'landing' | 'admin' | 'warga'
-      const [roleMode, setRoleMode] = useState('landing'); // Landing mode, Admin, or PWA
-      const [adminPage, setAdminPage] = useState('dashboard');
-      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-      const [toast, setToast] = useState(null);
+      // Role State: 'landing' | 'admin' | 'warga'
+      const [roleMode, setRoleMode] = useState('landing');
+      
+      // Admin Selected Page / Sub-Module
+      const [adminTab, setAdminTab] = useState('dashboard'); // 'dashboard' | 'warga' | 'verifikasi' | 'bukukas' | 'module'
+      const [activeAdminModule, setActiveAdminModule] = useState('dashboard');
+      const [showModuleDrawer, setShowModuleDrawer] = useState(false);
 
-      // Data States
+      // Warga Selected Tab (5 Tabs)
+      const [wargaTab, setWargaTab] = useState('beranda');
+
+      // Shared Datasets State
       const [houses, setHouses] = useState(INITIAL_HOUSES);
       const [billings, setBillings] = useState(INITIAL_BILLINGS);
       const [payments, setPayments] = useState(INITIAL_PAYMENTS);
       const [cashbook, setCashbook] = useState(INITIAL_CASHBOOK);
+      const [announcements, setAnnouncements] = useState(INITIAL_ANNOUNCEMENTS);
       const [registrations, setRegistrations] = useState(INITIAL_REGISTRATIONS);
 
-      // Modal States
-      const [modalType, setModalType] = useState(null); // 'addHouse' | 'addBilling' | 'addTransaction' | 'viewProof'
+      // Modals & Feedback State
+      const [modalType, setModalType] = useState(null);
       const [selectedProof, setSelectedProof] = useState(null);
+      const [toast, setToast] = useState(null);
 
-      // Form States
+      // Form State
       const [newHouse, setNewHouse] = useState({ block: '', owner: '', phone: '', status: 'Tetap', residents: 3 });
       const [newBilling, setNewBilling] = useState({ name: '', amount: '', type: 'Rutin Bulanan', target: 'Semua Warga' });
       const [newTrx, setNewTrx] = useState({ type: 'Pemasukan', category: 'Iuran Warga', description: '', amount: '' });
+      const [newAnnouncement, setNewAnnouncement] = useState({ title: '', category: 'Kegiatan', content: '' });
+
+      // Form Upload Resi Transfer Warga
+      const [wargaUploadForm, setWargaUploadForm] = useState({
+        billingName: 'Iuran Keamanan & Kebersihan (Rp 75.000)',
+        method: 'QRIS RT 17 / RW 45',
+        proofPreset: 'https://placehold.co/300x400/0f2355/ffffff?text=Resi+QRIS+Budi+Santoso'
+      });
 
       useEffect(() => {
         try {
@@ -164,33 +185,81 @@
         }
       });
 
-      const showToast = (message) => {
-        setToast(message);
-        setTimeout(() => setToast(null), 3000);
+      const showToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 3500);
       };
 
-      // Financial Calculated Summaries
+      // Real-Time Calculations
       const totalIncome = useMemo(() => cashbook.filter(t => t.type === 'Pemasukan').reduce((acc, curr) => acc + Number(curr.amount), 0), [cashbook]);
       const totalExpense = useMemo(() => cashbook.filter(t => t.type === 'Pengeluaran').reduce((acc, curr) => acc + Number(curr.amount), 0), [cashbook]);
       const currentBalance = 24850000 + totalIncome - totalExpense;
 
-      // Handlers
+      // Pending Payment Verification Count (Badge)
+      const pendingCount = useMemo(() => payments.filter(p => p.status === 'Menunggu Verifikasi').length, [payments]);
+
+      // Budi Santoso Payment Status in PWA Warga
+      const budiPaymentStatus = useMemo(() => {
+        const p = payments.find(pay => pay.house.includes('A1/02') || pay.house.includes('Budi Santoso'));
+        return p ? p.status : 'Belum Lunas';
+      }, [payments]);
+
+      // --- ACTION HANDLERS ---
+      
+      // 1. Warga Action: Submit Resi Transfer (Directly synced to Admin Module 4)
+      const handleWargaSubmitProof = (e) => {
+        e.preventDefault();
+        const newPayment = {
+          id: `PAY-${Date.now()}`,
+          date: new Date().toISOString().split('T')[0],
+          house: 'A1/02 (Budi Santoso)',
+          billing: wargaUploadForm.billingName,
+          total: wargaUploadForm.billingName.includes('20.000') ? 20000 : 100000,
+          method: wargaUploadForm.method,
+          status: 'Menunggu Verifikasi',
+          proof: wargaUploadForm.proofPreset
+        };
+
+        setPayments([newPayment, ...payments]);
+        setModalType(null);
+        showToast('🚀 Resi transfer dikirim! Antrean Verifikasi Pak Sarjito bertambah.');
+      };
+
+      // 2. Admin Action: Verifikasi Resi (Approve / Reject)
+      const handleVerifyPayment = (id, isApprove) => {
+        const targetPayment = payments.find(p => p.id === id);
+        setPayments(payments.map(p => p.id === id ? { ...p, status: isApprove ? 'Terverifikasi' : 'Ditolak' } : p));
+        
+        if (isApprove && targetPayment) {
+          const autoCashTrx = {
+            id: `TRX-${Date.now()}`,
+            date: new Date().toISOString().split('T')[0],
+            type: 'Pemasukan',
+            category: 'Iuran Warga',
+            description: `Iuran Masuk: ${targetPayment.billing} - ${targetPayment.house}`,
+            amount: targetPayment.total
+          };
+          setCashbook(prev => [autoCashTrx, ...prev]);
+        }
+        showToast(isApprove ? '✅ Pembayaran DISETUJUI! Kas RT 17 bertambah & PWA Warga otomatis LUNAS.' : '❌ Pembayaran Ditolak.');
+      };
+
       const handleAddHouse = (e) => {
         e.preventDefault();
         const created = { ...newHouse, id: `H${Date.now()}`, isOccupied: newHouse.status !== 'Kosong', residents: Number(newHouse.residents) };
         setHouses([...houses, created]);
         setModalType(null);
         setNewHouse({ block: '', owner: '', phone: '', status: 'Tetap', residents: 3 });
-        showToast('Data rumah & warga berhasil ditambahkan!');
+        showToast('Data warga & rumah berhasil ditambahkan!');
       };
 
       const handleAddBilling = (e) => {
         e.preventDefault();
-        const created = { ...newBilling, id: `BILL-${Date.now()}`, amount: Number(newBilling.amount), status: 'Aktif' };
+        const created = { ...newBilling, id: `BILL-${Date.now()}`, amount: Number(newBilling.amount), period: 'Oktober 2026', status: 'Aktif' };
         setBillings([...billings, created]);
         setModalType(null);
         setNewBilling({ name: '', amount: '', type: 'Rutin Bulanan', target: 'Semua Warga' });
-        showToast('Jenis iuran baru telah berhasil dipublikasikan!');
+        showToast('Jenis iuran baru dipublikasikan!');
       };
 
       const handleAddTrx = (e) => {
@@ -199,25 +268,16 @@
         setCashbook([created, ...cashbook]);
         setModalType(null);
         setNewTrx({ type: 'Pemasukan', category: 'Iuran Warga', description: '', amount: '' });
-        showToast('Transaksi baru berhasil dicatat ke dalam Buku Kas!');
+        showToast('Mutasi kas baru berhasil dicatat!');
       };
 
-      const handleVerifyPayment = (id, isApprove) => {
-        const payment = payments.find(p => p.id === id);
-        setPayments(payments.map(p => p.id === id ? { ...p, status: isApprove ? 'Terverifikasi' : 'Ditolak' } : p));
-        if (isApprove && payment) {
-          // Auto add to cashbook
-          const autoTrx = {
-            id: `TRX-${Date.now()}`,
-            date: new Date().toISOString().split('T')[0],
-            type: 'Pemasukan',
-            category: 'Iuran Warga',
-            description: `Pembayaran ${payment.billing} - ${payment.house}`,
-            amount: payment.total
-          };
-          setCashbook(prev => [autoTrx, ...prev]);
-        }
-        showToast(isApprove ? 'Pembayaran berhasil diverifikasi & dicatat ke Kas!' : 'Pembayaran ditolak.');
+      const handleAddAnnouncement = (e) => {
+        e.preventDefault();
+        const created = { ...newAnnouncement, id: `ANN-${Date.now()}`, date: new Date().toISOString().split('T')[0], author: 'Pak Sarjito (Ketua RT 17)' };
+        setAnnouncements([created, ...announcements]);
+        setModalType(null);
+        setNewAnnouncement({ title: '', category: 'Kegiatan', content: '' });
+        showToast('Pengumuman resmi diterbitkan ke PWA Warga!');
       };
 
       const handleApproveRegistration = (id) => {
@@ -235,47 +295,65 @@
           setHouses(prev => [...prev, newH]);
         }
         setRegistrations(registrations.filter(r => r.id !== id));
-        showToast('Pendaftaran warga disetujui & dimasukkan ke database warga!');
+        showToast('Pendaftaran warga disetujui & dimasukkan ke database!');
       };
+
+      const all15Modules = [
+        { id: 'dashboard', name: '1. Dashboard Utama', category: 'Utama', icon: 'layout-dashboard' },
+        { id: 'residents', name: '2. Data Warga & Rumah', category: 'Keanggotaan', icon: 'users' },
+        { id: 'billing', name: '3. Tagihan & Jenis Iuran', category: 'Keuangan', icon: 'receipt' },
+        { id: 'payments', name: '4. Verifikasi Bayar', category: 'Keuangan', icon: 'check-square', badge: pendingCount },
+        { id: 'finance', name: '5. Buku Kas & Transaksi', category: 'Keuangan', icon: 'book-open' },
+        { id: 'expenses', name: '6. Pos Pengeluaran', category: 'Keuangan', icon: 'pie-chart' },
+        { id: 'reconciliation', name: '7. Rekonsiliasi Saldo Bank', category: 'Keuangan', icon: 'scale' },
+        { id: 'reports', name: '8. Laporan & Tutup Buku', category: 'Keuangan', icon: 'file-spreadsheet' },
+        { id: 'announcements', name: '9. Pengumuman & LPJ', category: 'Publikasi', icon: 'megaphone' },
+        { id: 'whatsapp', name: '10. Integrasi WhatsApp', category: 'Publikasi', icon: 'message-square' },
+        { id: 'registrations', name: '11. Pendaftaran Baru', category: 'Sistem', icon: 'user-plus', badge: registrations.length },
+        { id: 'registration-links', name: '12. Link Form QRIS/Mandiri', category: 'Sistem', icon: 'link' },
+        { id: 'users', name: '13. Pengguna & Akses', category: 'Sistem', icon: 'shield-check' },
+        { id: 'audit', name: '14. Audit Log Aktivitas', category: 'Sistem', icon: 'history' },
+        { id: 'license', name: '15. Lisensi SaaS Aplikasi', category: 'Sistem', icon: 'badge-check' },
+      ];
 
       return (
         <div className="min-h-screen flex flex-col bg-slate-950 font-sans">
           
-          {/* TOAST NOTIFICATION */}
+          {/* FLOATING TOAST NOTIFICATION */}
           {toast && (
-            <div className="fixed top-5 right-5 z-50 bg-amber-400 text-slate-950 font-extrabold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-xs sm:text-sm animate-bounce border-2 border-yellow-200">
+            <div className="fixed top-4 right-4 z-50 bg-amber-400 text-slate-950 font-black px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-xs animate-bounce border-2 border-yellow-200">
               <i data-lucide="check-circle-2" className="w-5 h-5 flex-shrink-0"></i>
               <span>{toast}</span>
             </div>
           )}
 
-          {/* HEADER DEMO SWITCHER BAR */}
-          <header className="h-14 bg-brand-blue border-b border-blue-900 flex items-center justify-between px-3 sm:px-6 z-30 flex-shrink-0">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="bg-amber-400 text-slate-950 font-black rounded-lg px-2.5 py-1 text-xs tracking-wider flex items-center gap-1.5 shadow-lg">
+          {/* TOP DEMO HEADER BAR */}
+          <header className="h-14 bg-brand-900 border-b border-blue-900 flex items-center justify-between px-3 sm:px-6 z-40 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="bg-amber-400 text-slate-950 font-black rounded-lg px-2 py-0.5 text-xs tracking-wider flex items-center gap-1 shadow">
                 <i data-lucide="wallet" className="w-4 h-4"></i> KAS WARGA
               </div>
-              <span className="text-xs font-semibold text-slate-200 hidden md:inline border-l border-blue-800 pl-3">
-                Sistem Keuangan RT/RW Transparan — <strong className="text-amber-300">RT 05 / RW 02</strong>
+              <span className="text-xs font-semibold text-slate-200 hidden sm:inline border-l border-blue-800 pl-2">
+                RT 17 / RW 45
               </span>
             </div>
 
-            {/* Role / View Mode Switcher */}
-            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-blue-900 text-[11px] sm:text-xs">
+            {/* Role Switcher */}
+            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-blue-900 text-[11px]">
               <button 
-                onClick={() => { setRoleMode('landing'); showToast('Kembali ke Menu Awal'); }} 
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${roleMode === 'landing' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}`}>
-                <i data-lucide="home" className="w-3.5 h-3.5"></i> Landing
+                onClick={() => { setRoleMode('landing'); showToast('Buka Layar Pilihan Demo'); }} 
+                className={`px-2.5 py-1 rounded-lg font-medium transition ${roleMode === 'landing' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
+                Landing
               </button>
               <button 
                 onClick={() => { setRoleMode('admin'); showToast('Masuk Portal Admin Pak Sarjito'); }} 
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${roleMode === 'admin' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}`}>
-                <i data-lucide="shield-check" className="w-3.5 h-3.5"></i> Admin RT (15 Modul)
+                className={`px-2.5 py-1 rounded-lg font-medium transition ${roleMode === 'admin' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
+                Admin PWA
               </button>
               <button 
-                onClick={() => { setRoleMode('warga'); showToast('Masuk Portal Warga PWA'); }} 
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${roleMode === 'warga' ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}`}>
-                <i data-lucide="smartphone" className="w-3.5 h-3.5"></i> PWA Warga
+                onClick={() => { setRoleMode('warga'); showToast('Masuk Portal Warga Budi Santoso'); }} 
+                className={`px-2.5 py-1 rounded-lg font-medium transition ${roleMode === 'warga' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
+                Warga PWA
               </button>
             </div>
           </header>
@@ -284,26 +362,25 @@
           {/* 1. LANDING PAGE ROLE SELECTOR                                       */}
           {/* =================================================================== */}
           {roleMode === 'landing' && (
-            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-blue-950 via-slate-950 to-slate-950">
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-brand-900 via-slate-950 to-slate-950">
               
               <div className="text-center space-y-3 max-w-md mb-8">
-                {/* Brand Logo Display */}
                 <div className="w-24 h-24 mx-auto mb-2">
                   <KasWargaLogo className="w-full h-full" textSize="text-xs" />
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">KAS WARGA</h1>
                 <p className="text-xs sm:text-sm text-slate-300">
-                  Sistem Keuangan & Iuran RT/RW Transparan<br/>
-                  <strong className="text-amber-400">Wilayah RT 05 / RW 02 — Siap Demo Interaktif</strong>
+                  Sistem Informasi Keuangan RT/RW Transparan<br/>
+                  <strong className="text-amber-400">Wilayah RT 17 / RW 45</strong>
                 </p>
               </div>
 
-              {/* 2 Main Role Cards */}
+              {/* 2 Main Demo Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl">
                 
-                {/* Admin Mode Selection */}
+                {/* Option 1: Admin PWA */}
                 <div 
-                  onClick={() => { setRoleMode('admin'); showToast('Masuk sebagai Pak Sarjito (Ketua RT 05)'); }}
+                  onClick={() => { setRoleMode('admin'); showToast('Masuk PWA Admin Pak Sarjito (Ketua RT 17)'); }}
                   className="bg-brand-blue/80 hover:bg-brand-blue border-2 border-blue-500/50 hover:border-amber-400 p-6 rounded-3xl cursor-pointer transition-all transform hover:-translate-y-1 shadow-2xl flex flex-col justify-between group">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
@@ -311,27 +388,27 @@
                         <i data-lucide="shield-check" className="w-6 h-6"></i>
                       </div>
                       <span className="text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2.5 py-1 rounded-full">
-                        15 Modul Interaktif
+                        Admin PWA (15 Modul)
                       </span>
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-white group-hover:text-amber-300 transition">
-                        Demo Ketua RT / Pengurus (Pak Sarjito)
+                        Demo Pengurus RT (Pak Sarjito)
                       </h2>
                       <p className="text-xs text-slate-300 mt-1">
-                        Portal Admin lengkap dengan 15 modul interaktif untuk pengelolaan iuran, verifikasi resi, buku kas, dan pengumuman warga.
+                        Portal Admin PWA dalam <strong>Bingkai Smartphone Identik</strong>. Mengelola 15 modul interaktif verifikasi resi, kas RT, dan data warga.
                       </p>
                     </div>
                   </div>
                   <div className="mt-6 pt-4 border-t border-blue-800 flex items-center justify-between text-xs font-bold text-amber-400">
-                    <span>Buka Portal Admin RT</span>
+                    <span>Buka PWA Admin</span>
                     <i data-lucide="arrow-right" className="w-4 h-4"></i>
                   </div>
                 </div>
 
-                {/* Warga PWA Selection */}
+                {/* Option 2: Warga PWA */}
                 <div 
-                  onClick={() => { setRoleMode('warga'); showToast('Masuk sebagai Portal Warga PWA'); }}
+                  onClick={() => { setRoleMode('warga'); showToast('Masuk PWA Warga (Budi Santoso - Blok A1/02)'); }}
                   className="bg-slate-900/80 hover:bg-slate-900 border-2 border-slate-700 hover:border-emerald-500 p-6 rounded-3xl cursor-pointer transition-all transform hover:-translate-y-1 shadow-2xl flex flex-col justify-between group">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
@@ -339,20 +416,20 @@
                         <i data-lucide="smartphone" className="w-6 h-6"></i>
                       </div>
                       <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full">
-                        PWA Mobile
+                        PWA Warga Mobile
                       </span>
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-white group-hover:text-emerald-400 transition">
-                        Demo Warga / Anggota (Blok A-01)
+                        Demo Warga (Budi Santoso - A1/02)
                       </h2>
                       <p className="text-xs text-slate-300 mt-1">
-                        Aplikasi PWA Mobile ringkas warga untuk cek tagihan iuran bulanan, upload bukti transfer, dan cek transparansi kas RT.
+                        Portal PWA Mobile Warga dalam <strong>Bingkai Smartphone Identik</strong>. Bayar iuran, upload resi, dan cek transparansi saldo kas RT 17.
                       </p>
                     </div>
                   </div>
                   <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-400">
-                    <span>Buka PWA Mobile Warga</span>
+                    <span>Buka PWA Warga</span>
                     <i data-lucide="arrow-right" className="w-4 h-4"></i>
                   </div>
                 </div>
@@ -360,819 +437,233 @@
               </div>
 
               <p className="text-[11px] text-slate-500 mt-8 text-center">
-                Kas Warga &copy; 2026 — RT 05 / RW 02 (SaaS Platform Ready Demo)
+                Kas Warga PWA &copy; 2026 — RT 17 / RW 45
               </p>
             </div>
           )}
 
           {/* =================================================================== */}
-          {/* 2. PORTAL ADMIN (15 FULL INTERACTIVE MODULES)                       */}
-          {/* =================================================================== */}
-          {roleMode === 'admin' && (
-            <div className="flex-1 flex overflow-hidden bg-slate-100 text-slate-800">
-              
-              {/* SIDEBAR NAVIGATION (15 MENUS FULLY IMPLEMENTED) */}
-              <aside className={`
-                absolute lg:relative top-0 left-0 bottom-0 z-30 w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 text-xs transition-transform duration-300 ease-in-out
-                ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
-              `}>
-                <div className="p-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-                  <div className="flex items-center gap-2.5">
-                    <KasWargaLogo className="w-8 h-8" textSize="text-[8px]" />
-                    <div>
-                      <h2 className="font-bold text-white text-xs">RT 05 / RW 02</h2>
-                      <p className="text-[10px] text-amber-400 font-semibold">Pak Sarjito (Ketua RT)</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white p-1">
-                    <i data-lucide="x" className="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                  
-                  {/* Section 1 */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Ringkasan</p>
-                    <button onClick={() => { setAdminPage('dashboard'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'dashboard' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="layout-dashboard" className="w-4 h-4"></i> 1. Dashboard
-                    </button>
-                  </div>
-
-                  {/* Section 2 */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Master Keanggotaan</p>
-                    <button onClick={() => { setAdminPage('residents'); setMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'residents' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <span className="flex items-center gap-2.5"><i data-lucide="users" className="w-4 h-4"></i> 2. Data Warga & Rumah</span>
-                      <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{houses.length}</span>
-                    </button>
-                  </div>
-
-                  {/* Section 3 */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Keuangan & Kas RT</p>
-                    <button onClick={() => { setAdminPage('billing'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'billing' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="receipt" className="w-4 h-4"></i> 3. Tagihan & Jenis Iuran
-                    </button>
-                    <button onClick={() => { setAdminPage('payments'); setMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'payments' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <span className="flex items-center gap-2.5"><i data-lucide="credit-card" className="w-4 h-4"></i> 4. Verifikasi Pembayaran</span>
-                      {payments.filter(p=>p.status==='Menunggu Verifikasi').length > 0 && (
-                        <span className="bg-amber-400 text-slate-950 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse">
-                          {payments.filter(p=>p.status==='Menunggu Verifikasi').length}
-                        </span>
-                      )}
-                    </button>
-                    <button onClick={() => { setAdminPage('finance'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'finance' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="book-open" className="w-4 h-4"></i> 5. Buku Kas & Transaksi
-                    </button>
-                    <button onClick={() => { setAdminPage('expenses'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'expenses' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="pie-chart" className="w-4 h-4"></i> 6. Pos Pengeluaran
-                    </button>
-                    <button onClick={() => { setAdminPage('reconciliation'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'reconciliation' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="scale" className="w-4 h-4"></i> 7. Rekonsiliasi Saldo Bank
-                    </button>
-                    <button onClick={() => { setAdminPage('reports'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'reports' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="file-spreadsheet" className="w-4 h-4"></i> 8. Laporan & Tutup Buku
-                    </button>
-                  </div>
-
-                  {/* Section 4 */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Komunikasi Warga</p>
-                    <button onClick={() => { setAdminPage('announcements'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'announcements' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="megaphone" className="w-4 h-4"></i> 9. Pengumuman & LPJ
-                    </button>
-                    <button onClick={() => { setAdminPage('whatsapp'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'whatsapp' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="message-square" className="w-4 h-4"></i> 10. Integrasi WhatsApp
-                    </button>
-                  </div>
-
-                  {/* Section 5 */}
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Sistem & Keamanan</p>
-                    <button onClick={() => { setAdminPage('registrations'); setMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'registrations' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <span className="flex items-center gap-2.5"><i data-lucide="user-plus" className="w-4 h-4"></i> 11. Pendaftaran Warga Baru</span>
-                      {registrations.length > 0 && <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">{registrations.length}</span>}
-                    </button>
-                    <button onClick={() => { setAdminPage('registration-links'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'registration-links' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="link" className="w-4 h-4"></i> 12. Link Form Mandiri
-                    </button>
-                    <button onClick={() => { setAdminPage('users'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'users' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="shield-check" className="w-4 h-4"></i> 13. Manajemen Pengurus
-                    </button>
-                    <button onClick={() => { setAdminPage('audit'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'audit' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="history" className="w-4 h-4"></i> 14. Audit Log Aktivitas
-                    </button>
-                    <button onClick={() => { setAdminPage('license'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'license' ? 'bg-brand-blue text-white shadow-lg border border-blue-400/30' : 'text-slate-400 hover:bg-slate-800'}`}>
-                      <i data-lucide="badge-check" className="w-4 h-4"></i> 15. Status Lisensi Aplikasi
-                    </button>
-                  </div>
-
-                </div>
-
-                <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-white">Pak Sarjito</p>
-                    <p className="text-[10px] text-amber-400">Ketua RT 05 / RW 02</p>
-                  </div>
-                  <button onClick={() => setRoleMode('landing')} className="text-amber-400 hover:text-white p-1">
-                    <i data-lucide="log-out" className="w-4 h-4"></i>
-                  </button>
-                </div>
-              </aside>
-
-              {mobileMenuOpen && (
-                <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-slate-950/70 z-20 lg:hidden backdrop-blur-sm"></div>
-              )}
-
-              {/* MAIN ADMIN WORKSPACE */}
-              <main className="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
-                
-                {/* Top Bar Workspace */}
-                <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 sticky top-0 z-10">
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-1.5 bg-slate-900 text-white rounded-lg">
-                      <i data-lucide="menu" className="w-5 h-5"></i>
-                    </button>
-                    <span className="font-bold text-slate-800 text-xs sm:text-sm capitalize">Modul: {adminPage.replace('-', ' ')}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => showToast('Mengeksport Data Backup System...')} className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5">
-                      <i data-lucide="download" className="w-3.5 h-3.5"></i> Export
-                    </button>
-                  </div>
-                </div>
-
-                {/* DYNAMIC MODULE CONTENT */}
-                <div className="p-4 sm:p-6 space-y-6">
-                  
-                  {/* MODULE 1: DASHBOARD */}
-                  {adminPage === 'dashboard' && (
-                    <div className="space-y-6">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div>
-                          <h1 className="text-xl font-extrabold text-slate-800">1. Dashboard Ikhtisar RT 05</h1>
-                          <p className="text-xs text-slate-500">Ringkasan real-time posisi kas, tagihan warga, dan statistik keanggotaan.</p>
-                        </div>
-                        <button onClick={() => setModalType('addTransaction')} className="bg-brand-blue hover:bg-blue-900 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
-                          <i data-lucide="plus-circle" className="w-4 h-4 text-amber-400"></i> Catat Transaksi Kas
-                        </button>
-                      </div>
-
-                      {/* Stat Cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                          <p className="text-slate-500 font-semibold flex items-center gap-1.5">
-                            <i data-lucide="wallet" className="w-4 h-4 text-brand-blue"></i> Total Saldo Kas RT 05
-                          </p>
-                          <p className="text-2xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
-                          <span className="inline-block text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">● Bank & Cash Sinkron</span>
-                        </div>
-
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                          <p className="text-slate-500 font-semibold flex items-center gap-1.5">
-                            <i data-lucide="arrow-down-left" className="w-4 h-4 text-emerald-600"></i> Pemasukan Bulan Ini
-                          </p>
-                          <p className="text-2xl font-black text-emerald-600">Rp {totalIncome.toLocaleString('id-ID')}</p>
-                          <p className="text-[10px] text-slate-400">Dari {payments.filter(p=>p.status==='Terverifikasi').length} pembayaran iuran</p>
-                        </div>
-
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                          <p className="text-slate-500 font-semibold flex items-center gap-1.5">
-                            <i data-lucide="arrow-up-right" className="w-4 h-4 text-rose-600"></i> Pengeluaran Bulan Ini
-                          </p>
-                          <p className="text-2xl font-black text-rose-600">Rp {totalExpense.toLocaleString('id-ID')}</p>
-                          <p className="text-[10px] text-slate-400">Gaji satpam & operasional</p>
-                        </div>
-
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                          <p className="text-slate-500 font-semibold flex items-center gap-1.5">
-                            <i data-lucide="home" className="w-4 h-4 text-blue-600"></i> Total Rumah Terdata
-                          </p>
-                          <p className="text-2xl font-black text-slate-800">{houses.length} Rumah</p>
-                          <p className="text-[10px] text-blue-600 font-bold">{houses.filter(h=>h.isOccupied).length} Terisi, {houses.filter(h=>!h.isOccupied).length} Kosong</p>
-                        </div>
-                      </div>
-
-                      {/* Overview Tables */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                          <div className="flex justify-between items-center border-b pb-2">
-                            <h3 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                              <i data-lucide="clock" className="w-4 h-4 text-amber-500"></i> Verifikasi Bayar Terbaru
-                            </h3>
-                            <button onClick={() => setAdminPage('payments')} className="text-xs font-bold text-brand-blue hover:underline">Lihat Semua →</button>
-                          </div>
-                          <div className="space-y-2 text-xs">
-                            {payments.map(p => (
-                              <div key={p.id} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                                <div>
-                                  <p className="font-bold text-slate-800">{p.house}</p>
-                                  <p className="text-[10px] text-slate-500">{p.billing} • Rp {p.total.toLocaleString('id-ID')}</p>
-                                </div>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.status === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800 animate-pulse'}`}>
-                                  {p.status}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                          <div className="flex justify-between items-center border-b pb-2">
-                            <h3 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                              <i data-lucide="list-checks" className="w-4 h-4 text-emerald-600"></i> Mutasi Kas Terbaru
-                            </h3>
-                            <button onClick={() => setAdminPage('finance')} className="text-xs font-bold text-brand-blue hover:underline">Buku Kas →</button>
-                          </div>
-                          <div className="space-y-2 text-xs">
-                            {cashbook.slice(0, 4).map(t => (
-                              <div key={t.id} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                                <div>
-                                  <p className="font-bold text-slate-800">{t.description}</p>
-                                  <p className="text-[10px] text-slate-500">{t.date} • {t.category}</p>
-                                </div>
-                                <span className={`font-black ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                  {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 2: RESIDENTS */}
-                  {adminPage === 'residents' && (
-                    <div className="space-y-5">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                          <h1 className="text-xl font-bold text-slate-800">2. Data Warga & Rumah RT 05</h1>
-                          <p className="text-xs text-slate-500">Kelola blok rumah, pemilik/penghuni, status hunian, serta nomor WhatsApp.</p>
-                        </div>
-                        <button onClick={() => setModalType('addHouse')} className="bg-brand-blue hover:bg-blue-900 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
-                          <i data-lucide="plus" className="w-4 h-4 text-amber-400"></i> Tambah Warga / Rumah
-                        </button>
-                      </div>
-
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                              <tr>
-                                <th className="p-3">Blok & No</th>
-                                <th className="p-3">Nama Pemilik / Penghuni</th>
-                                <th className="p-3">Kontak WhatsApp</th>
-                                <th className="p-3">Status Hunian</th>
-                                <th className="p-3">Jumlah Jiwa</th>
-                                <th className="p-3 text-right">Aksi</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                              {houses.map(h => (
-                                <tr key={h.id} className="hover:bg-slate-50">
-                                  <td className="p-3 font-bold text-slate-900">{h.block}</td>
-                                  <td className="p-3 font-semibold text-slate-800">{h.owner}</td>
-                                  <td className="p-3 text-slate-600 font-mono">{h.phone}</td>
-                                  <td className="p-3">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${h.status === 'Tetap' ? 'bg-emerald-100 text-emerald-800' : h.status === 'Kontrak' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'}`}>
-                                      {h.status}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 text-slate-700">{h.residents} Jiwa</td>
-                                  <td className="p-3 text-right space-x-1">
-                                    <button onClick={() => showToast(`Pesan WA dikirim ke ${h.owner}`)} className="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-lg hover:bg-emerald-200">WA Tagihan</button>
-                                    <button onClick={() => showToast(`Edit Data ${h.block}`)} className="px-2 py-1 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200">Edit</button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 3: BILLING */}
-                  {adminPage === 'billing' && (
-                    <div className="space-y-5">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                          <h1 className="text-xl font-bold text-slate-800">3. Tagihan & Jenis Iuran RT</h1>
-                          <p className="text-xs text-slate-500">Atur komponen iuran rutin/insidental dan terbitkan tagihan bulanan.</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button onClick={() => setModalType('addBilling')} className="bg-brand-blue hover:bg-blue-900 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
-                            <i data-lucide="plus" className="w-4 h-4 text-amber-400"></i> Tambah Tarif Iuran
-                          </button>
-                          <button onClick={() => showToast('Tagihan Oktober Diterbitkan untuk Seluruh Warga!')} className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
-                            <i data-lucide="send" className="w-4 h-4 text-amber-400"></i> Terbitkan Tagihan Bulan Ini
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                        {billings.map(b => (
-                          <div key={b.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
-                            <div className="space-y-1.5">
-                              <div className="flex justify-between items-start">
-                                <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md">{b.type}</span>
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">{b.status}</span>
-                              </div>
-                              <h3 className="font-bold text-slate-800 text-sm leading-snug">{b.name}</h3>
-                              <p className="text-xl font-black text-slate-900">Rp {b.amount.toLocaleString('id-ID')} <span className="text-xs text-slate-400 font-normal">/ Rumah</span></p>
-                              <p className="text-[11px] text-slate-500">Target: {b.target}</p>
-                            </div>
-                            <div className="pt-2 border-t flex gap-2">
-                              <button onClick={() => showToast(`Edit ${b.name}`)} className="flex-1 bg-slate-100 hover:bg-slate-200 font-bold py-1.5 rounded-lg text-slate-700">Edit Nominal</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 4: PAYMENTS */}
-                  {adminPage === 'payments' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">4. Verifikasi Pembayaran Transfer Warga</h1>
-                        <p className="text-xs text-slate-500">Periksa resi konfirmasi bayar dari aplikasi warga PWA.</p>
-                      </div>
-
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-100 text-slate-700 font-bold border-b">
-                              <tr>
-                                <th className="p-3">Tgl Transfer</th>
-                                <th className="p-3">Warga / Rumah</th>
-                                <th className="p-3">Tagihan</th>
-                                <th className="p-3">Nominal Transfer</th>
-                                <th className="p-3">Metode Bayar</th>
-                                <th className="p-3">Bukti Resi</th>
-                                <th className="p-3">Status</th>
-                                <th className="p-3 text-right">Aksi Verifikasi</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                              {payments.map(p => (
-                                <tr key={p.id} className="hover:bg-slate-50">
-                                  <td className="p-3 text-slate-600">{p.date}</td>
-                                  <td className="p-3 font-bold text-slate-800">{p.house}</td>
-                                  <td className="p-3 text-slate-700">{p.billing}</td>
-                                  <td className="p-3 font-black text-slate-900">Rp {p.total.toLocaleString('id-ID')}</td>
-                                  <td className="p-3 font-medium text-slate-600">{p.method}</td>
-                                  <td className="p-3">
-                                    {p.proof ? (
-                                      <button onClick={() => { setSelectedProof(p.proof); setModalType('viewProof'); }} className="text-brand-blue font-bold underline flex items-center gap-1">
-                                        <i data-lucide="image" className="w-3.5 h-3.5"></i> Lihat Resi
-                                      </button>
-                                    ) : <span className="text-slate-400">Tunai / Tanpa Resi</span>}
-                                  </td>
-                                  <td className="p-3">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.status === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Ditolak' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800 animate-pulse'}`}>
-                                      {p.status}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 text-right space-x-1">
-                                    {p.status === 'Menunggu Verifikasi' && (
-                                      <>
-                                        <button onClick={() => handleVerifyPayment(p.id, true)} className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[11px]">Setujui</button>
-                                        <button onClick={() => handleVerifyPayment(p.id, false)} className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-[11px]">Tolak</button>
-                                      </>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 5: FINANCE */}
-                  {adminPage === 'finance' && (
-                    <div className="space-y-5">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                          <h1 className="text-xl font-bold text-slate-800">5. Buku Kas & Transaksi Transparan</h1>
-                          <p className="text-xs text-slate-500">Catatan kronologis mutasi debit/kredit arus keuangan RT 05.</p>
-                        </div>
-                        <button onClick={() => setModalType('addTransaction')} className="bg-brand-blue hover:bg-blue-900 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
-                          <i data-lucide="plus" className="w-4 h-4 text-amber-400"></i> Catat Mutasi Kas
-                        </button>
-                      </div>
-
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-100 text-slate-700 font-bold border-b">
-                              <tr>
-                                <th className="p-3">ID TRX</th>
-                                <th className="p-3">Tanggal</th>
-                                <th className="p-3">Jenis</th>
-                                <th className="p-3">Kategori</th>
-                                <th className="p-3">Uraian / Keterangan</th>
-                                <th className="p-3 text-right">Nominal (Rp)</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                              {cashbook.map(t => (
-                                <tr key={t.id} className="hover:bg-slate-50">
-                                  <td className="p-3 text-slate-500 font-mono text-[11px]">{t.id}</td>
-                                  <td className="p-3 text-slate-600">{t.date}</td>
-                                  <td className="p-3">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.type === 'Pemasukan' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                                      {t.type}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 font-semibold text-slate-700">{t.category}</td>
-                                  <td className="p-3 font-medium text-slate-800">{t.description}</td>
-                                  <td className={`p-3 text-right font-black ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                    {t.type === 'Pemasukan' ? '+' : '-'} {t.amount.toLocaleString('id-ID')}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 6: EXPENSES */}
-                  {adminPage === 'expenses' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">6. Pos Pengeluaran & Anggaran Operational</h1>
-                        <p className="text-xs text-slate-500">Realisasi pengeluaran bulanan satpam, sampah, dan fasilitas umum.</p>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                          <h3 className="font-bold text-slate-800 text-sm">Gaji & Honor Satpam</h3>
-                          <p className="text-slate-500">Anggaran: Rp 1.500.000 / bln</p>
-                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div className="bg-emerald-500 h-full w-full"></div>
-                          </div>
-                          <p className="text-[10px] font-bold text-emerald-600">100% Terealisasi (Lunas)</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                          <h3 className="font-bold text-slate-800 text-sm">Retribusi Kebersihan DLH</h3>
-                          <p className="text-slate-500">Anggaran: Rp 400.000 / bln</p>
-                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div className="bg-emerald-500 h-full w-full"></div>
-                          </div>
-                          <p className="text-[10px] font-bold text-emerald-600">100% Terealisasi</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                          <h3 className="font-bold text-slate-800 text-sm">Pemeliharaan Lampu Jalan</h3>
-                          <p className="text-slate-500">Anggaran: Rp 300.000 / bln</p>
-                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div className="bg-amber-400 h-full w-0"></div>
-                          </div>
-                          <p className="text-[10px] font-bold text-slate-400">0% Belum Ada Pengeluaran</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 7: RECONCILIATION */}
-                  {adminPage === 'reconciliation' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">7. Rekonsiliasi Saldo Kas Fisik vs Bank</h1>
-                        <p className="text-xs text-slate-500">Pencocokan saldo fisik bendahara dengan rekening Bank RT 05.</p>
-                      </div>
-                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4">
-                          <div className="p-3 bg-slate-50 rounded-xl border">
-                            <p className="text-slate-500 font-semibold">Saldo Catatan Aplikasi Kas Warga</p>
-                            <p className="text-xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
-                          </div>
-                          <div className="p-3 bg-slate-50 rounded-xl border">
-                            <p className="text-slate-500 font-semibold">Saldo Rekening Bank Mandiri RT 05</p>
-                            <p className="text-xl font-black text-brand-blue">Rp {currentBalance.toLocaleString('id-ID')}</p>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center bg-emerald-50 text-emerald-800 p-3 rounded-xl border border-emerald-200 font-bold">
-                          <span className="flex items-center gap-2">
-                            <i data-lucide="check-circle-2" className="w-5 h-5 text-emerald-600"></i> STATUS: BALANS (SINKRON)
-                          </span>
-                          <button onClick={() => showToast('Mencetak Berita Acara Rekonsiliasi Saldo...')} className="bg-brand-blue text-white px-3 py-1.5 rounded-lg text-[11px]">Cetak Berita Acara</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 8: REPORTS */}
-                  {adminPage === 'reports' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">8. Laporan Keuangan & Tutup Buku</h1>
-                        <p className="text-xs text-slate-500">Rekapitulasi pertanggungjawaban kas dalam format PDF & Excel.</p>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                          <div className="flex items-center gap-2 text-brand-blue font-bold">
-                            <i data-lucide="file-text" className="w-5 h-5"></i> Laporan Kas Bulanan (Oktober 2026)
-                          </div>
-                          <p className="text-slate-500">Rekap mutasi kas debit kredit siap cetak untuk warga.</p>
-                          <button onClick={() => showToast('Mendownload Laporan Kas PDF...')} className="w-full bg-brand-blue hover:bg-blue-900 text-white font-bold py-2 rounded-xl">Download PDF Laporan</button>
-                        </div>
-                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                          <div className="flex items-center gap-2 text-emerald-600 font-bold">
-                            <i data-lucide="file-spreadsheet" className="w-5 h-5"></i> Rekap Tunggakan Iuran
-                          </div>
-                          <p className="text-slate-500">Daftar warga yang belum melunasi iuran bulanan.</p>
-                          <button onClick={() => showToast('Mendownload Rekap Tunggakan Excel...')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl">Download Excel Rekap</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 9: ANNOUNCEMENTS */}
-                  {adminPage === 'announcements' && (
-                    <div className="space-y-5">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h1 className="text-xl font-bold text-slate-800">9. Pengumuman & LPJ Transparan</h1>
-                          <p className="text-xs text-slate-500">Publikasi kabar warga dan laporan pertanggungjawaban kegiatan.</p>
-                        </div>
-                        <button onClick={() => showToast('Form Pengumuman Baru')} className="bg-brand-blue text-white font-bold text-xs px-3.5 py-2 rounded-xl">+ Buat Pengumuman</button>
-                      </div>
-                      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
-                        <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">Terpublikasi di PWA</span>
-                        <h3 className="font-bold text-slate-800 text-sm">Kerja Bakti Minggu Pagi Bersama Warga RT 05</h3>
-                        <p className="text-slate-600">Diimbau seluruh warga RT 05 hadir dalam kerja bakti pembersihan selokan Minggu pukul 07:00 WIB.</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 10: WHATSAPP */}
-                  {adminPage === 'whatsapp' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">10. Integrasi WhatsApp Gateway</h1>
-                        <p className="text-xs text-slate-500">Kirim pengingat penagihan otomatis & kuitansi langsung ke WA warga.</p>
-                      </div>
-                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
-                        <div className="flex items-center justify-between border-b pb-3">
-                          <div>
-                            <p className="font-bold text-slate-800 text-sm">Status WA Bot Gateway</p>
-                            <p className="text-emerald-600 font-semibold">● Terhubung (WhatsApp Official RT 05)</p>
-                          </div>
-                          <button onClick={() => showToast('Bot WA Berhasil Diuji!')} className="bg-slate-100 font-bold px-3 py-1.5 rounded-lg text-slate-700">Test Bot WA</button>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="font-bold text-slate-800">Teks Generator Tagihan WhatsApp:</p>
-                          <textarea className="w-full bg-slate-50 border p-3 rounded-xl font-mono text-slate-700" rows="3" readOnly value="Yth. Bapak/Ibu Warga RT 05. Tagihan iuran kebersihan & kas bulan ini sebesar Rp 100.000. Mohon transfer via Kas Warga PWA. Terima kasih."></textarea>
-                          <button onClick={() => showToast('Teks tagihan disalin!')} className="bg-brand-blue text-white font-bold px-3 py-1.5 rounded-lg">Salin Teks WA</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 11: REGISTRATIONS */}
-                  {adminPage === 'registrations' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">11. Pendaftaran Calon Warga Baru</h1>
-                        <p className="text-xs text-slate-500">Persetujuan data calon warga yang mendaftar mandiri online.</p>
-                      </div>
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                        {registrations.length === 0 ? (
-                          <div className="p-6 text-center text-slate-400">Tidak ada pendaftaran pending.</div>
-                        ) : (
-                          <table className="w-full text-left border-collapse">
-                            <thead className="bg-slate-100 text-slate-700 font-bold border-b">
-                              <tr>
-                                <th className="p-3">Nama Pemohon</th>
-                                <th className="p-3">Blok</th>
-                                <th className="p-3">Status Kepemilikan</th>
-                                <th className="p-3">WhatsApp</th>
-                                <th className="p-3 text-right">Aksi</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                              {registrations.map(r => (
-                                <tr key={r.id}>
-                                  <td className="p-3 font-bold text-slate-800">{r.name}</td>
-                                  <td className="p-3 font-mono font-bold">{r.block}</td>
-                                  <td className="p-3">{r.type}</td>
-                                  <td className="p-3 text-slate-600">{r.phone}</td>
-                                  <td className="p-3 text-right">
-                                    <button onClick={() => handleApproveRegistration(r.id)} className="bg-emerald-600 text-white font-bold px-3 py-1 rounded-lg text-[11px]">
-                                      Setujui & Masukkan Warga
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 12: REGISTRATION LINKS */}
-                  {adminPage === 'registration-links' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">12. Link Pendaftaran & QRIS Mandiri Warga</h1>
-                        <p className="text-xs text-slate-500">Bagikan tautan ini ke grup WhatsApp RT 05.</p>
-                      </div>
-                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 text-xs">
-                        <p className="font-bold text-slate-800">Link Form Pendaftaran Online RT 05:</p>
-                        <div className="flex gap-2">
-                          <input type="text" readOnly value="https://kaswarga.id/rt05/join" className="w-full bg-slate-100 p-2.5 rounded-xl border font-mono text-slate-700" />
-                          <button onClick={() => showToast('Link Berhasil Disalin!')} className="bg-brand-blue text-white font-bold px-4 py-2.5 rounded-xl flex-shrink-0">
-                            Salin Link
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 13: USERS */}
-                  {adminPage === 'users' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">13. Pengguna & Akses Hak Pengurus</h1>
-                        <p className="text-xs text-slate-500">Manajemen akun pengurus RT 05 / RW 02.</p>
-                      </div>
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                        <table className="w-full text-left border-collapse">
-                          <thead className="bg-slate-100 text-slate-700 font-bold border-b">
-                            <tr>
-                              <th className="p-3">Nama Pengurus</th>
-                              <th className="p-3">Jabatan</th>
-                              <th className="p-3">Username Login</th>
-                              <th className="p-3">Akses Hak</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200">
-                            <tr>
-                              <td className="p-3 font-bold text-slate-800">Pak Sarjito</td>
-                              <td className="p-3"><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">Ketua RT</span></td>
-                              <td className="p-3 font-mono">ketua_rt05</td>
-                              <td className="p-3 text-slate-600">Akses Penuh Full Admin (15 Menu)</td>
-                            </tr>
-                            <tr>
-                              <td className="p-3 font-bold text-slate-800">Budi Santoso</td>
-                              <td className="p-3"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Bendahara</span></td>
-                              <td className="p-3 font-mono">bendahara_rt05</td>
-                              <td className="p-3 text-slate-600">Akses Keuangan & Kas</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 14: AUDIT */}
-                  {adminPage === 'audit' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">14. Audit Log Rekam Jejak Keamanan</h1>
-                        <p className="text-xs text-slate-500">Catatan aktivitas digital seluruh tindakan pengurus.</p>
-                      </div>
-                      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 font-mono text-xs space-y-2">
-                        <div className="p-2 bg-slate-50 rounded border text-slate-700">[2026-10-21 14:30] Pak Sarjito (Ketua RT) memverifikasi pembayaran PAY-100 (Rp 100.000).</div>
-                        <div className="p-2 bg-slate-50 rounded border text-slate-700">[2026-10-20 09:15] Pak Sarjito menerbitkan pengumuman kerja bakti warga.</div>
-                        <div className="p-2 bg-slate-50 rounded border text-slate-700">[2026-10-18 10:00] System menerbitkan tagihan massal iuran rutin bulan Oktober 2026.</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* MODULE 15: LICENSE */}
-                  {adminPage === 'license' && (
-                    <div className="space-y-5">
-                      <div>
-                        <h1 className="text-xl font-bold text-slate-800">15. Lisensi Aplikasi & Status System</h1>
-                        <p className="text-xs text-slate-500">Informasi lisensi SaaS aktif Kas Warga RT 05.</p>
-                      </div>
-                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
-                        <div className="flex items-center gap-3">
-                          <KasWargaLogo className="w-12 h-12" textSize="text-[8px]" />
-                          <div>
-                            <h3 className="font-bold text-slate-800 text-sm">Kas Warga SaaS Platform RT/RW</h3>
-                            <p className="text-emerald-600 font-bold">● Status Lisensi: Active (Masa Berlaku s/d 31 Des 2027)</p>
-                          </div>
-                        </div>
-                        <div className="p-3 bg-slate-50 rounded-xl space-y-1 text-slate-600 border">
-                          <p><strong>Subdomain Terdaftar:</strong> kaswarga.id/rt05</p>
-                          <p><strong>Kuota Warga:</strong> 78 / 1.000 KK Terpakai</p>
-                          <p><strong>Versi Sistem:</strong> Kas Warga v3.5 Enterprise</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-              </main>
-
-            </div>
-          )}
-
-          {/* =================================================================== */}
-          {/* 3. PORTAL WARGA PWA (MOBILE PHONE SIMULATOR)                       */}
+          {/* 2. PORTAL WARGA PWA (SMARTPHONE MOCKUP FRAME IDENTIK)                */}
           {/* =================================================================== */}
           {roleMode === 'warga' && (
-            <div className="flex-1 flex items-center justify-center p-3 sm:p-6 bg-slate-950">
+            <div className="flex-1 flex items-center justify-center p-2 sm:p-6 bg-slate-950 overflow-y-auto">
               
-              {/* Mobile Phone Mockup */}
-              <div className="w-[360px] h-[640px] bg-slate-900 rounded-[44px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between relative">
+              {/* SMARTPHONE FRAME MOCKUP (IDENTIK DENGAN ADMIN PWA) */}
+              <div className="w-full max-w-[380px] h-[720px] bg-slate-900 rounded-[44px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between relative">
                 
-                {/* Phone Notch */}
+                {/* Smartphone Notch & Camera */}
                 <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-950 rounded-full z-30 flex items-center justify-end px-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></div>
+                  <div className="w-2 h-2 rounded-full bg-slate-800 border border-slate-700"></div>
                 </div>
 
-                {/* Inner Screen */}
+                {/* Inner Screen Area */}
                 <div className="w-full h-full bg-slate-100 rounded-[34px] overflow-hidden flex flex-col pt-6 text-slate-800 relative font-sans shadow-inner">
                   
-                  {/* Top Header */}
-                  <div className="bg-brand-blue text-white px-4 py-3 flex items-center justify-between shadow">
+                  {/* PWA App Header Bar */}
+                  <div className="bg-brand-900 text-white px-3.5 py-2.5 flex items-center justify-between shadow-md">
                     <div className="flex items-center gap-2">
                       <KasWargaLogo className="w-7 h-7" textSize="text-[6px]" />
                       <div>
                         <h3 className="text-xs font-black tracking-wide leading-tight">KAS WARGA PWA</h3>
-                        <p className="text-[9px] text-amber-300 font-semibold">RT 05 / RW 02</p>
+                        <p className="text-[9px] text-amber-300 font-semibold">Portal Warga (RT 17)</p>
                       </div>
                     </div>
-                    <button onClick={() => setRoleMode('landing')} className="bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded-lg">
-                      Ganti Role
+                    <button 
+                      onClick={() => setRoleMode('landing')} 
+                      className="bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-1 rounded-lg">
+                      Role Switch
                     </button>
                   </div>
 
-                  {/* PWA Scroll Content */}
+                  {/* SCREEN CONTENT AREA (5 WARGA TABS) */}
                   <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs">
                     
-                    {/* User Profile Card */}
-                    <div className="bg-gradient-to-r from-blue-900 to-brand-blue text-white p-4 rounded-2xl shadow space-y-1">
-                      <p className="text-[10px] text-amber-300">Selamat Datang,</p>
-                      <h2 className="font-bold text-base">Budi Santoso 👋</h2>
-                      <p className="text-[10px] text-slate-300">Penghuni: Blok A1 No. 02 (RT 05)</p>
-                    </div>
-
-                    {/* Active Invoice Box */}
-                    <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-amber-950 text-[11px]">Tagihan Iuran Oktober 2026</span>
-                        <span className="bg-amber-200 text-amber-950 font-bold text-[9px] px-2 py-0.5 rounded-full">Belum Lunas</span>
-                      </div>
-                      <div className="flex justify-between items-baseline">
-                        <p className="text-2xl font-black text-slate-900">Rp 100.000</p>
-                        <span className="text-[10px] text-slate-500">Jatuh Tempo: 25 Okt</span>
-                      </div>
-                      <button 
-                        onClick={() => showToast('Bukti Transfer Terkirim! Menunggu Verifikasi Bendahara.')}
-                        className="w-full bg-brand-blue hover:bg-blue-900 text-white font-bold text-xs py-2 rounded-xl shadow flex items-center justify-center gap-1">
-                        <i data-lucide="upload" className="w-3.5 h-3.5 text-amber-400"></i> Upload Bukti Transfer
-                      </button>
-                    </div>
-
-                    {/* Transparency Kas RT Card */}
-                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase">Transparansi Kas RT 05</span>
-                        <span className="text-[10px] text-emerald-600 font-bold">Terbuka</span>
-                      </div>
-                      <p className="text-xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
-                      <div className="grid grid-cols-2 gap-2 text-[10px]">
-                        <div className="bg-slate-50 p-2 rounded-xl border">
-                          <span className="text-slate-400">Pemasukan</span>
-                          <p className="font-bold text-emerald-600">+Rp {totalIncome.toLocaleString('id-ID')}</p>
+                    {/* TAB 1: BERANDA WARGA */}
+                    {wargaTab === 'beranda' && (
+                      <div className="space-y-3.5">
+                        <div className="bg-gradient-to-br from-brand-900 via-brand-blue to-slate-900 text-white p-3.5 rounded-2xl shadow-md space-y-1">
+                          <p className="text-[10px] text-amber-300 font-bold uppercase tracking-wider">Selamat Datang,</p>
+                          <h2 className="font-extrabold text-sm">Budi Santoso 👋</h2>
+                          <p className="text-[10px] text-slate-300">Rumah: <strong>Blok A1/02</strong> (RT 17 / RW 45)</p>
                         </div>
-                        <div className="bg-slate-50 p-2 rounded-xl border">
-                          <span className="text-slate-400">Pengeluaran</span>
-                          <p className="font-bold text-rose-600">-Rp {totalExpense.toLocaleString('id-ID')}</p>
+
+                        {/* Active Invoice Card */}
+                        <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl space-y-2.5 shadow-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="font-extrabold text-amber-950 text-[11px]">Tagihan Oktober 2026</span>
+                            <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
+                              budiPaymentStatus === 'Terverifikasi' ? 'bg-emerald-200 text-emerald-900' : 
+                              budiPaymentStatus === 'Menunggu Verifikasi' ? 'bg-amber-200 text-amber-900 animate-pulse' : 
+                              'bg-rose-200 text-rose-900'
+                            }`}>
+                              {budiPaymentStatus === 'Terverifikasi' ? 'LUNAS' : budiPaymentStatus}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-baseline">
+                            <p className="text-xl font-black text-slate-900">Rp 100.000</p>
+                            <span className="text-[10px] text-slate-500">Jatuh Tempo: 25 Okt</span>
+                          </div>
+
+                          {budiPaymentStatus !== 'Terverifikasi' ? (
+                            <button 
+                              onClick={() => setModalType('uploadProofWarga')}
+                              className="w-full bg-brand-blue hover:bg-blue-900 text-white font-bold text-xs py-2 rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+                              <i data-lucide="upload" className="w-3.5 h-3.5 text-amber-400"></i> Upload Resi Transfer
+                            </button>
+                          ) : (
+                            <div className="bg-emerald-100 text-emerald-800 text-[11px] font-bold p-2 rounded-xl text-center flex items-center justify-center gap-1">
+                              <i data-lucide="check-circle" className="w-4 h-4"></i> Pembayaran Terverifikasi Lunas
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Transparansi Kas RT */}
+                        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-extrabold text-slate-400 uppercase">Transparansi Kas RT 17</span>
+                            <button onClick={() => setWargaTab('kas')} className="text-[10px] font-bold text-brand-blue hover:underline">Rincian →</button>
+                          </div>
+                          <p className="text-xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                          <div className="grid grid-cols-2 gap-2 text-[10px]">
+                            <div className="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                              <span className="text-slate-400">Pemasukan</span>
+                              <p className="font-bold text-emerald-600">+Rp {totalIncome.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div className="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                              <span className="text-slate-400">Pengeluaran</span>
+                              <p className="font-bold text-rose-600">-Rp {totalExpense.toLocaleString('id-ID')}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Pengumuman RT */}
+                        <div className="bg-white p-3 rounded-2xl border border-slate-200 space-y-1.5 shadow-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded">Kabar RT 17</span>
+                            <span className="text-[9px] text-slate-400">{announcements[0]?.date}</span>
+                          </div>
+                          <p className="font-bold text-slate-800 text-xs">{announcements[0]?.title}</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-2">{announcements[0]?.content}</p>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Announcement Feed */}
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-                      <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded">Pengumuman Pak Sarjito</span>
-                      <p className="font-bold text-slate-800 text-xs">Kerja Bakti Minggu Pagi</p>
-                      <p className="text-[10px] text-slate-500">Pukul 07:00 WIB di lapangan selokan RT. Dimohon hadir perwakilan rumah...</p>
-                    </div>
+                    {/* TAB 2: TAGIHAN SAYA */}
+                    {wargaTab === 'tagihan' && (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center border-b pb-2">
+                          <h3 className="font-bold text-slate-800 text-xs">Daftar Tagihan Iuran</h3>
+                          <span className="text-[10px] text-slate-500">Blok A1/02</span>
+                        </div>
+
+                        {billings.map(b => (
+                          <div key={b.id} className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-600">{b.type}</span>
+                                <h4 className="font-bold text-slate-800 text-xs mt-1">{b.name}</h4>
+                              </div>
+                              <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
+                                budiPaymentStatus === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                              }`}>
+                                {budiPaymentStatus === 'Terverifikasi' ? 'Lunas' : 'Belum Lunas'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-baseline pt-1 border-t border-slate-100">
+                              <p className="font-black text-slate-900 text-sm">Rp {b.amount.toLocaleString('id-ID')}</p>
+                              <p className="text-[10px] text-slate-400">Periode: {b.period}</p>
+                            </div>
+                          </div>
+                        ))}
+
+                        <button 
+                          onClick={() => setModalType('uploadProofWarga')}
+                          className="w-full bg-brand-blue hover:bg-blue-900 text-white font-bold py-2.5 rounded-xl text-xs shadow flex items-center justify-center gap-1.5 mt-2">
+                          <i data-lucide="upload" className="w-4 h-4 text-amber-400"></i> Upload Bukti Resi Transfer
+                        </button>
+                      </div>
+                    )}
+
+                    {/* TAB 3: KAS RT TRANSPARAN */}
+                    {wargaTab === 'kas' && (
+                      <div className="space-y-3">
+                        <div className="bg-brand-900 text-white p-3.5 rounded-2xl space-y-1">
+                          <p className="text-[10px] text-amber-300 font-bold">Transparansi Kas RT 17 Real-Time</p>
+                          <p className="text-xl font-black">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <p className="font-bold text-slate-700 text-[11px]">Riwayat Mutasi Kas Terbaru:</p>
+                          {cashbook.map(t => (
+                            <div key={t.id} className="bg-white p-2.5 rounded-xl border border-slate-200 text-xs flex justify-between items-center shadow-sm">
+                              <div>
+                                <p className="font-bold text-slate-800">{t.description}</p>
+                                <p className="text-[9px] text-slate-400">{t.date} • {t.category}</p>
+                              </div>
+                              <span className={`font-black text-xs ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TAB 4: PENGUMUMAN & LPJ */}
+                    {wargaTab === 'pengumuman' && (
+                      <div className="space-y-3">
+                        <h3 className="font-bold text-slate-800 text-xs border-b pb-1">Pengumuman Resmi RT 17</h3>
+                        {announcements.map(a => (
+                          <div key={a.id} className="bg-white p-3.5 rounded-2xl border border-slate-200 space-y-1.5 shadow-sm">
+                            <div className="flex justify-between items-center">
+                              <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded">{a.category}</span>
+                              <span className="text-[9px] text-slate-400">{a.date}</span>
+                            </div>
+                            <h4 className="font-bold text-slate-800 text-xs">{a.title}</h4>
+                            <p className="text-[10px] text-slate-600 leading-relaxed">{a.content}</p>
+                            <p className="text-[9px] text-slate-400 pt-1 font-semibold">— {a.author}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* TAB 5: PROFIL WARGA */}
+                    {wargaTab === 'profil' && (
+                      <div className="space-y-3">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-center space-y-2">
+                          <div className="w-16 h-16 mx-auto rounded-full bg-brand-blue text-amber-400 font-black text-xl flex items-center justify-center border-2 border-amber-400 shadow">
+                            BS
+                          </div>
+                          <div>
+                            <h3 className="font-extrabold text-slate-900 text-sm">Budi Santoso</h3>
+                            <p className="text-[10px] text-slate-500">Blok A1 No. 02 — RT 17 / RW 45</p>
+                          </div>
+                        </div>
+                        <button onClick={() => setRoleMode('landing')} className="w-full bg-rose-50 border border-rose-200 text-rose-700 font-bold py-2.5 rounded-xl text-xs">
+                          Ganti Role Demo
+                        </button>
+                      </div>
+                    )}
 
                   </div>
 
-                  {/* PWA Bottom Nav */}
-                  <div className="h-14 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[10px] font-bold">
-                    <button className="flex flex-col items-center gap-0.5 text-brand-blue">
+                  {/* BOTTOM NAVIGATION BAR WARGA (5 TOMBOL IDENTIK) */}
+                  <div className="h-16 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[9px] font-bold rounded-b-[30px] flex-shrink-0">
+                    <button onClick={() => setWargaTab('beranda')} className={`flex flex-col items-center gap-0.5 ${wargaTab === 'beranda' ? 'text-brand-blue font-extrabold' : 'hover:text-slate-700'}`}>
                       <i data-lucide="home" className="w-4 h-4"></i> Beranda
                     </button>
-                    <button onClick={() => showToast('Halaman Tagihan')} className="flex flex-col items-center gap-0.5 hover:text-slate-700">
+                    <button onClick={() => setWargaTab('tagihan')} className={`flex flex-col items-center gap-0.5 ${wargaTab === 'tagihan' ? 'text-brand-blue font-extrabold' : 'hover:text-slate-700'}`}>
                       <i data-lucide="receipt" className="w-4 h-4"></i> Tagihan
                     </button>
-                    <button onClick={() => showToast('Halaman Profil Warga')} className="flex flex-col items-center gap-0.5 hover:text-slate-700">
-                      <i data-lucide="user" className="w-4 h-4"></i> Akun
+                    <button onClick={() => setWargaTab('kas')} className={`flex flex-col items-center gap-0.5 ${wargaTab === 'kas' ? 'text-brand-blue font-extrabold' : 'hover:text-slate-700'}`}>
+                      <i data-lucide="pie-chart" className="w-4 h-4"></i> Kas RT
+                    </button>
+                    <button onClick={() => setWargaTab('pengumuman')} className={`flex flex-col items-center gap-0.5 ${wargaTab === 'pengumuman' ? 'text-brand-blue font-extrabold' : 'hover:text-slate-700'}`}>
+                      <i data-lucide="megaphone" className="w-4 h-4"></i> Info
+                    </button>
+                    <button onClick={() => setWargaTab('profil')} className={`flex flex-col items-center gap-0.5 ${wargaTab === 'profil' ? 'text-brand-blue font-extrabold' : 'hover:text-slate-700'}`}>
+                      <i data-lucide="user" className="w-4 h-4"></i> Profil
                     </button>
                   </div>
 
@@ -1183,140 +674,557 @@
             </div>
           )}
 
-          {/* ALL INTERACTIVE MODALS */}
-          {/* Modal 1: Tambah Warga / Rumah */}
+          {/* =================================================================== */}
+          {/* 3. PORTAL ADMIN PWA (SMARTPHONE MOCKUP FRAME IDENTIK 100%)          */}
+          {/* =================================================================== */}
+          {roleMode === 'admin' && (
+            <div className="flex-1 flex items-center justify-center p-2 sm:p-6 bg-slate-950 overflow-y-auto">
+              
+              {/* SMARTPHONE FRAME MOCKUP (IDENTIK DENGAN WARGA PWA) */}
+              <div className="w-full max-w-[380px] h-[720px] bg-slate-900 rounded-[44px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between relative">
+                
+                {/* Smartphone Notch & Camera */}
+                <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-950 rounded-full z-30 flex items-center justify-end px-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-800 border border-slate-700"></div>
+                </div>
+
+                {/* Inner Screen Area */}
+                <div className="w-full h-full bg-slate-100 rounded-[34px] overflow-hidden flex flex-col pt-6 text-slate-800 relative font-sans shadow-inner">
+                  
+                  {/* PWA App Header Bar */}
+                  <div className="bg-brand-900 text-white px-3.5 py-2.5 flex items-center justify-between shadow-md">
+                    <div className="flex items-center gap-2">
+                      <KasWargaLogo className="w-7 h-7" textSize="text-[6px]" />
+                      <div>
+                        <h3 className="text-xs font-black tracking-wide leading-tight">KAS WARGA ADMIN</h3>
+                        <p className="text-[9px] text-amber-300 font-semibold">Pak Sarjito (Ketua RT 17)</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setRoleMode('landing')} 
+                      className="bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-1 rounded-lg">
+                      Role Switch
+                    </button>
+                  </div>
+
+                  {/* SCREEN CONTENT AREA (15 ADMIN MODULES ACCESSIBLE) */}
+                  <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs">
+                    
+                    {/* BOTTOM TAB 1: DASHBOARD (MODUL 1) */}
+                    {adminTab === 'dashboard' && (
+                      <div className="space-y-3.5">
+                        <div className="bg-gradient-to-br from-brand-900 via-brand-blue to-slate-900 text-white p-3.5 rounded-2xl shadow-md space-y-1">
+                          <p className="text-[10px] text-amber-300 font-bold uppercase tracking-wider">Ringkasan Utama RT 17</p>
+                          <p className="text-2xl font-black">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                          <p className="text-[10px] text-emerald-400 font-bold">🟢 Bank & Cash Synchronized Balance</p>
+                        </div>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 gap-2 text-[10px]">
+                          <div className="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm space-y-0.5">
+                            <span className="text-slate-400 font-bold">Pemasukan Okt</span>
+                            <p className="font-black text-emerald-600 text-xs">+Rp {totalIncome.toLocaleString('id-ID')}</p>
+                          </div>
+                          <div className="bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm space-y-0.5">
+                            <span className="text-slate-400 font-bold">Pengeluaran Okt</span>
+                            <p className="font-black text-rose-600 text-xs">-Rp {totalExpense.toLocaleString('id-ID')}</p>
+                          </div>
+                        </div>
+
+                        {/* Pending Verifications Box */}
+                        <div className="bg-amber-50 border border-amber-200 p-3 rounded-2xl space-y-2 shadow-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="font-extrabold text-amber-950 text-xs">Antrean Verifikasi Resi</span>
+                            <span className="bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-full">{pendingCount} Resi</span>
+                          </div>
+                          <p className="text-[10px] text-slate-600">Ada {pendingCount} konfirmasi transfer warga yang perlu diperiksa Pak Sarjito.</p>
+                          <button onClick={() => setAdminTab('verifikasi')} className="w-full bg-brand-blue text-white font-bold py-2 rounded-xl text-xs shadow">
+                            Periksa Antrean Resi Sekarang →
+                          </button>
+                        </div>
+
+                        {/* Mutasi Kas Terbaru */}
+                        <div className="bg-white p-3 rounded-2xl border border-slate-200 space-y-2 shadow-sm">
+                          <div className="flex justify-between items-center border-b pb-1">
+                            <span className="font-bold text-slate-800 text-xs">Mutasi Buku Kas Terbaru</span>
+                            <button onClick={() => setAdminTab('bukukas')} className="text-[10px] font-bold text-brand-blue hover:underline">Semua →</button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {cashbook.slice(0, 3).map(t => (
+                              <div key={t.id} className="flex justify-between items-center text-[10px] p-1.5 bg-slate-50 rounded-lg">
+                                <div>
+                                  <p className="font-bold text-slate-800">{t.description}</p>
+                                  <p className="text-[8px] text-slate-400">{t.date}</p>
+                                </div>
+                                <span className={`font-black ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                  {t.type === 'Pemasukan' ? '+' : '-'} {t.amount.toLocaleString('id-ID')}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BOTTOM TAB 2: WARGA (MODUL 2) */}
+                    {adminTab === 'warga' && (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center border-b pb-2">
+                          <h3 className="font-bold text-slate-800 text-xs">Data Warga RT 17 ({houses.length} Rumah)</h3>
+                          <button onClick={() => setModalType('addHouse')} className="bg-brand-blue text-white font-bold text-[10px] px-2.5 py-1.5 rounded-xl flex items-center gap-1 shadow">
+                            <i data-lucide="plus" className="w-3.5 h-3.5 text-amber-400"></i> + Warga
+                          </button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {houses.map(h => (
+                            <div key={h.id} className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1.5">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <span className="font-black text-slate-900 text-xs">Blok {h.block}</span>
+                                  <h4 className="font-bold text-slate-800 text-xs">{h.owner}</h4>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${h.status === 'Tetap' ? 'bg-emerald-100 text-emerald-800' : h.status === 'Kontrak' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'}`}>
+                                  {h.status}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center text-[10px] pt-1 border-t border-slate-100">
+                                <span className="text-slate-500 font-mono">{h.phone}</span>
+                                <button onClick={() => showToast(`Kirim Pesan Tagihan WA ke ${h.owner}`)} className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
+                                  <i data-lucide="message-square" className="w-3 h-3"></i> WA Tagihan
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BOTTOM TAB 3: VERIFIKASI (MODUL 4) */}
+                    {adminTab === 'verifikasi' && (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center border-b pb-2">
+                          <h3 className="font-bold text-slate-800 text-xs">Verifikasi Resi Transfer Warga</h3>
+                          <span className="bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-full">{pendingCount} Pending</span>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          {payments.map(p => (
+                            <div key={p.id} className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className="font-bold text-slate-800 text-xs">{p.house}</h4>
+                                  <p className="text-[10px] text-slate-500">{p.billing}</p>
+                                </div>
+                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${p.status === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Ditolak' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800 font-bold animate-pulse'}`}>
+                                  {p.status}
+                                </span>
+                              </div>
+
+                              <div className="flex justify-between items-center text-xs font-black text-slate-900 bg-slate-50 p-2 rounded-xl border">
+                                <span>Total: Rp {p.total.toLocaleString('id-ID')}</span>
+                                {p.proof && (
+                                  <button onClick={() => { setSelectedProof(p.proof); setModalType('viewProof'); }} className="text-brand-blue font-bold text-[10px] underline flex items-center gap-1">
+                                    <i data-lucide="image" className="w-3 h-3"></i> Preview Resi
+                                  </button>
+                                )}
+                              </div>
+
+                              {p.status === 'Menunggu Verifikasi' && (
+                                <div className="flex gap-1.5 pt-1">
+                                  <button onClick={() => handleVerifyPayment(p.id, true)} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-xl text-[10px]">
+                                    ✓ Setujui
+                                  </button>
+                                  <button onClick={() => handleVerifyPayment(p.id, false)} className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px]">
+                                    ✕ Tolak
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BOTTOM TAB 4: BUKU KAS (MODUL 5) */}
+                    {adminTab === 'bukukas' && (
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center border-b pb-2">
+                          <h3 className="font-bold text-slate-800 text-xs">Buku Kas Mutasi Utama</h3>
+                          <button onClick={() => setModalType('addTransaction')} className="bg-brand-blue text-white font-bold text-[10px] px-2.5 py-1.5 rounded-xl shadow">
+                            + Mutasi
+                          </button>
+                        </div>
+
+                        <div className="space-y-2">
+                          {cashbook.map(t => (
+                            <div key={t.id} className="bg-white p-2.5 rounded-2xl border border-slate-200 text-xs flex justify-between items-center shadow-sm">
+                              <div>
+                                <p className="font-bold text-slate-800">{t.description}</p>
+                                <p className="text-[9px] text-slate-400">{t.date} • {t.category}</p>
+                              </div>
+                              <span className={`font-black text-xs ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* DRAWER / MODULE ACCESSED SCREEN */}
+                    {adminTab === 'module' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 border-b pb-2">
+                          <button onClick={() => setAdminTab('dashboard')} className="p-1 bg-slate-200 rounded-lg text-slate-700">
+                            <i data-lucide="arrow-left" className="w-4 h-4"></i>
+                          </button>
+                          <h3 className="font-bold text-slate-800 text-xs capitalize">
+                            Modul: {activeAdminModule}
+                          </h3>
+                        </div>
+
+                        {/* Modul 3: Billing */}
+                        {activeAdminModule === 'billing' && (
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <h4 className="font-bold text-slate-800 text-xs">Tarif Jenis Iuran Terdaftar</h4>
+                              <button onClick={() => setModalType('addBilling')} className="bg-brand-blue text-white font-bold text-[10px] px-2 py-1 rounded-lg">+ Jenis Iuran</button>
+                            </div>
+                            {billings.map(b => (
+                              <div key={b.id} className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                                <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{b.type}</span>
+                                <h4 className="font-bold text-slate-800 text-xs">{b.name}</h4>
+                                <p className="font-black text-slate-900 text-sm">Rp {b.amount.toLocaleString('id-ID')} / Rumah</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Modul 6: Expenses */}
+                        {activeAdminModule === 'expenses' && (
+                          <div className="space-y-2.5">
+                            <h4 className="font-bold text-slate-800 text-xs">Pos Anggaran Operasional RT 17</h4>
+                            <div className="bg-white p-3 rounded-2xl border border-slate-200 space-y-1">
+                              <p className="font-bold text-slate-800 text-xs">Honor Satpam RT 17</p>
+                              <p className="text-[10px] text-slate-500">Anggaran: Rp 1.800.000 / bln</p>
+                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="bg-emerald-500 h-full w-full"></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Modul 7: Reconciliation */}
+                        {activeAdminModule === 'reconciliation' && (
+                          <div className="bg-white p-3 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                            <p className="font-bold text-slate-800">Rekonsiliasi Bank vs Fisik Kas</p>
+                            <p className="text-slate-600">Saldo Catatan Kas: <strong>Rp {currentBalance.toLocaleString('id-ID')}</strong></p>
+                            <p className="text-slate-600">Saldo Bank Mandiri: <strong>Rp {currentBalance.toLocaleString('id-ID')}</strong></p>
+                            <div className="bg-emerald-100 text-emerald-800 font-bold p-2 rounded-xl text-center text-[10px]">
+                              ✓ Status: BALANS & SINKRON
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Modul 8: Reports */}
+                        {activeAdminModule === 'reports' && (
+                          <div className="space-y-2 text-xs">
+                            <button onClick={() => showToast('Mendownload Laporan Kas PDF...')} className="w-full bg-brand-blue text-white font-bold p-3 rounded-2xl shadow">
+                              📄 Download Laporan Kas (PDF)
+                            </button>
+                            <button onClick={() => showToast('Mendownload Rekap Excel...')} className="w-full bg-emerald-600 text-white font-bold p-3 rounded-2xl shadow">
+                              📊 Download Rekap Tunggakan (Excel)
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Modul 9: Announcements */}
+                        {activeAdminModule === 'announcements' && (
+                          <div className="space-y-2">
+                            <button onClick={() => setModalType('addAnnouncement')} className="w-full bg-brand-blue text-white font-bold p-2.5 rounded-2xl text-xs">+ Buat Pengumuman</button>
+                            {announcements.map(a => (
+                              <div key={a.id} className="bg-white p-3 rounded-2xl border border-slate-200 space-y-1 text-xs">
+                                <h4 className="font-bold text-slate-800">{a.title}</h4>
+                                <p className="text-slate-600 text-[10px]">{a.content}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Modul 10: WhatsApp */}
+                        {activeAdminModule === 'whatsapp' && (
+                          <div className="bg-white p-3 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                            <p className="font-bold text-slate-800">Teks Penagihan WhatsApp:</p>
+                            <textarea className="w-full bg-slate-50 border p-2 rounded-xl text-[10px]" rows="3" readOnly value="Yth. Warga RT 17. Tagihan iuran Oktober 2026 telah diterbitkan. Mohon upload bukti transfer di PWA Warga. Terima kasih - Pak Sarjito"></textarea>
+                            <button onClick={() => showToast('Teks WA Berhasil Disalin!')} className="w-full bg-emerald-600 text-white font-bold p-2 rounded-xl">Salin Teks WA</button>
+                          </div>
+                        )}
+
+                        {/* Fallback for other modules */}
+                        {!['billing', 'expenses', 'reconciliation', 'reports', 'announcements', 'whatsapp'].includes(activeAdminModule) && (
+                          <div className="bg-white p-4 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                            <span className="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded text-[10px]">Modul Active</span>
+                            <h4 className="font-bold text-slate-800 text-sm capitalize">{activeAdminModule}</h4>
+                            <p className="text-slate-500">Modul terintegrasi penuh untuk pengurus RT 17 / RW 45.</p>
+                          </div>
+                        )}
+
+                      </div>
+                    )}
+
+                  </div>
+
+                  {/* BOTTOM NAVIGATION BAR ADMIN (5 TOMBOL IDENTIK) */}
+                  <div className="h-16 bg-brand-900 border-t border-blue-900 text-white flex items-center justify-around text-[9px] font-bold rounded-b-[30px] flex-shrink-0">
+                    <button onClick={() => setAdminTab('dashboard')} className={`flex flex-col items-center gap-0.5 ${adminTab === 'dashboard' ? 'text-amber-400 font-extrabold' : 'text-slate-300'}`}>
+                      <i data-lucide="layout-dashboard" className="w-4 h-4"></i> Dashboard
+                    </button>
+                    <button onClick={() => setAdminTab('warga')} className={`flex flex-col items-center gap-0.5 ${adminTab === 'warga' ? 'text-amber-400 font-extrabold' : 'text-slate-300'}`}>
+                      <i data-lucide="users" className="w-4 h-4"></i> Warga
+                    </button>
+                    <button onClick={() => setAdminTab('verifikasi')} className={`flex flex-col items-center gap-0.5 relative ${adminTab === 'verifikasi' ? 'text-amber-400 font-extrabold' : 'text-slate-300'}`}>
+                      <i data-lucide="check-square" className="w-4 h-4"></i> Verifikasi
+                      {pendingCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-amber-400 text-slate-950 font-black text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center animate-bounce">
+                          {pendingCount}
+                        </span>
+                      )}
+                    </button>
+                    <button onClick={() => setAdminTab('bukukas')} className={`flex flex-col items-center gap-0.5 ${adminTab === 'bukukas' ? 'text-amber-400 font-extrabold' : 'text-slate-300'}`}>
+                      <i data-lucide="book-open" className="w-4 h-4"></i> Buku Kas
+                    </button>
+                    <button onClick={() => setShowModuleDrawer(true)} className="flex flex-col items-center gap-0.5 text-amber-300 hover:text-white">
+                      <i data-lucide="grid" className="w-4 h-4"></i> Menu (15)
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* BOTTOM DRAWER SHEET FOR ALL 15 ADMIN MODULES                       */}
+          {/* =================================================================== */}
+          {showModuleDrawer && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex flex-col justify-end p-0 sm:items-center sm:justify-center sm:p-4">
+              <div className="bg-slate-900 text-white rounded-t-3xl sm:rounded-3xl max-w-sm w-full max-h-[80vh] overflow-y-auto border border-blue-900 shadow-2xl p-4 space-y-3">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                  <div className="flex items-center gap-2">
+                    <KasWargaLogo className="w-6 h-6" textSize="text-[5px]" />
+                    <h3 className="font-extrabold text-xs text-white">Seluruh 15 Modul Admin RT 17</h3>
+                  </div>
+                  <button onClick={() => setShowModuleDrawer(false)} className="text-slate-400 hover:text-white">
+                    <i data-lucide="x" className="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {all15Modules.map(mod => (
+                    <button 
+                      key={mod.id}
+                      onClick={() => {
+                        setActiveAdminModule(mod.id);
+                        setAdminTab('module');
+                        setShowModuleDrawer(false);
+                      }}
+                      className="p-2.5 rounded-2xl bg-slate-800/90 border border-slate-700 hover:bg-brand-blue text-left flex flex-col justify-between space-y-1.5 transition">
+                      <div className="flex justify-between items-center">
+                        <i data-lucide={mod.icon} className="w-4 h-4 text-amber-400"></i>
+                        {mod.badge > 0 && (
+                          <span className="bg-amber-400 text-slate-950 font-black text-[8px] px-1.5 py-0.2 rounded-full">
+                            {mod.badge}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-bold text-[10px] text-white leading-tight">{mod.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <button onClick={() => setShowModuleDrawer(false)} className="w-full bg-slate-800 text-slate-300 font-bold py-2 rounded-xl text-xs">
+                  Tutup
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* ALL INTERACTIVE MODALS                                              */}
+          {/* =================================================================== */}
+
+          {/* Modal Warga Upload Resi Transfer */}
+          {modalType === 'uploadProofWarga' && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white text-slate-800 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border">
+                <div className="p-3.5 bg-brand-900 text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Upload Resi Transfer (Budi Santoso)</h3>
+                  <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
+                </div>
+                <form onSubmit={handleWargaSubmitProof} className="p-4 space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700">Pilih Tagihan</label>
+                    <select value={wargaUploadForm.billingName} onChange={e=>setWargaUploadForm({...wargaUploadForm, billingName: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 font-bold">
+                      <option>Iuran Keamanan & Kebersihan (Rp 75.000)</option>
+                      <option>Kas Rutin RT 17 (Rp 25.000)</option>
+                      <option>Sumbangan Perbaikan Lampu Jalan (Rp 20.000)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700">Metode Bayar</label>
+                    <select value={wargaUploadForm.method} onChange={e=>setWargaUploadForm({...wargaUploadForm, method: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1">
+                      <option>QRIS RT 17 / RW 45</option>
+                      <option>Transfer Bank Mandiri</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700">Preset Bukti Transfer</label>
+                    <select value={wargaUploadForm.proofPreset} onChange={e=>setWargaUploadForm({...wargaUploadForm, proofPreset: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 font-mono text-[10px]">
+                      <option value="https://placehold.co/300x400/0f2355/ffffff?text=Resi+QRIS+Budi+Santoso">Gunakan Resi QRIS Budi Santoso</option>
+                      <option value="https://placehold.co/300x400/163988/ffffff?text=Resi+M-Banking+Mandiri">Gunakan Resi Bank Mandiri</option>
+                    </select>
+                  </div>
+                  <div className="pt-2 flex gap-2">
+                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2 rounded-xl">🚀 Kirim Resi Ke Pak Sarjito</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl">Batal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Modal Admin: Tambah Warga */}
           {modalType === 'addHouse' && (
             <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border">
-                <div className="p-4 bg-brand-blue text-white flex justify-between items-center">
-                  <h3 className="font-bold text-xs sm:text-sm">Tambah Data Rumah & Warga Baru</h3>
+              <div className="bg-white text-slate-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border">
+                <div className="p-3.5 bg-brand-blue text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Tambah Warga & Rumah RT 17</h3>
                   <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-                <form onSubmit={handleAddHouse} className="p-4 space-y-3 text-xs">
+                <form onSubmit={handleAddHouse} className="p-4 space-y-2.5 text-xs">
                   <div>
-                    <label className="font-bold text-slate-700">Blok & Nomor Rumah</label>
-                    <input type="text" required placeholder="Contoh: A-05" value={newHouse.block} onChange={e=>setNewHouse({...newHouse, block: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
+                    <label className="font-bold text-slate-700">Blok Rumah</label>
+                    <input type="text" required placeholder="Contoh: A2/05" value={newHouse.block} onChange={e=>setNewHouse({...newHouse, block: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div>
-                    <label className="font-bold text-slate-700">Nama Pemilik / Kepala Keluarga</label>
-                    <input type="text" required placeholder="Nama Lengkap" value={newHouse.owner} onChange={e=>setNewHouse({...newHouse, owner: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
+                    <label className="font-bold text-slate-700">Nama Warga</label>
+                    <input type="text" required placeholder="Nama Lengkap" value={newHouse.owner} onChange={e=>setNewHouse({...newHouse, owner: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div>
-                    <label className="font-bold text-slate-700">No. WhatsApp Active</label>
-                    <input type="text" required placeholder="081234567890" value={newHouse.phone} onChange={e=>setNewHouse({...newHouse, phone: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="font-bold text-slate-700">Status Hunian</label>
-                      <select value={newHouse.status} onChange={e=>setNewHouse({...newHouse, status: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1">
-                        <option value="Tetap">Tetap</option>
-                        <option value="Kontrak">Kontrak</option>
-                        <option value="Kosong">Kosong</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700">Jumlah Penghuni</label>
-                      <input type="number" value={newHouse.residents} onChange={e=>setNewHouse({...newHouse, residents: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1" />
-                    </div>
+                    <label className="font-bold text-slate-700">No. WhatsApp</label>
+                    <input type="text" required placeholder="081234567890" value={newHouse.phone} onChange={e=>setNewHouse({...newHouse, phone: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div className="pt-2 flex gap-2">
-                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2.5 rounded-xl">Simpan Data Warga</button>
-                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
+                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2 rounded-xl">Simpan Data</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl">Batal</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* Modal 2: Tambah Jenis Iuran */}
+          {/* Modal Admin: Tambah Jenis Iuran */}
           {modalType === 'addBilling' && (
             <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border">
-                <div className="p-4 bg-brand-blue text-white flex justify-between items-center">
-                  <h3 className="font-bold text-xs sm:text-sm">Tambah Tarif / Jenis Iuran Baru</h3>
+              <div className="bg-white text-slate-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border">
+                <div className="p-3.5 bg-brand-blue text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Tambah Tarif Jenis Iuran</h3>
                   <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-                <form onSubmit={handleAddBilling} className="p-4 space-y-3 text-xs">
+                <form onSubmit={handleAddBilling} className="p-4 space-y-2.5 text-xs">
                   <div>
                     <label className="font-bold text-slate-700">Nama Iuran</label>
-                    <input type="text" required placeholder="Contoh: Kas Duka Cita Warga" value={newBilling.name} onChange={e=>setNewBilling({...newBilling, name: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
+                    <input type="text" required placeholder="Contoh: Iuran Kebersihan Tambahan" value={newBilling.name} onChange={e=>setNewBilling({...newBilling, name: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div>
-                    <label className="font-bold text-slate-700">Nominal Tagihan per Rumah (Rp)</label>
-                    <input type="number" required placeholder="50000" value={newBilling.amount} onChange={e=>setNewBilling({...newBilling, amount: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="font-bold text-slate-700">Sifat Iuran</label>
-                      <select value={newBilling.type} onChange={e=>setNewBilling({...newBilling, type: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1">
-                        <option value="Rutin Bulanan">Rutin Bulanan</option>
-                        <option value="Insidental">Insidental</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700">Target Warga</label>
-                      <select value={newBilling.target} onChange={e=>setNewBilling({...newBilling, target: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1">
-                        <option value="Semua Warga">Semua Warga</option>
-                        <option value="Warga Tetap">Warga Tetap Sahaja</option>
-                      </select>
-                    </div>
+                    <label className="font-bold text-slate-700">Nominal (Rp)</label>
+                    <input type="number" required placeholder="50000" value={newBilling.amount} onChange={e=>setNewBilling({...newBilling, amount: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div className="pt-2 flex gap-2">
-                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2.5 rounded-xl">Publikasikan Iuran</button>
-                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
+                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2 rounded-xl">Simpan Iuran</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl">Batal</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* Modal 3: Catat Mutasi Kas */}
+          {/* Modal Admin: Catat Mutasi Kas */}
           {modalType === 'addTransaction' && (
             <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border">
-                <div className="p-4 bg-brand-blue text-white flex justify-between items-center">
-                  <h3 className="font-bold text-xs sm:text-sm">Catat Mutasi Transaksi Kas Baru</h3>
+              <div className="bg-white text-slate-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border">
+                <div className="p-3.5 bg-brand-blue text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Catat Mutasi Kas RT 17</h3>
                   <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-                <form onSubmit={handleAddTrx} className="p-4 space-y-3 text-xs">
+                <form onSubmit={handleAddTrx} className="p-4 space-y-2.5 text-xs">
                   <div>
                     <label className="font-bold text-slate-700">Jenis Transaksi</label>
-                    <select value={newTrx.type} onChange={e=>setNewTrx({...newTrx, type: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 font-bold">
+                    <select value={newTrx.type} onChange={e=>setNewTrx({...newTrx, type: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 font-bold">
                       <option value="Pemasukan">Pemasukan (+ Kas)</option>
                       <option value="Pengeluaran">Pengeluaran (- Kas)</option>
                     </select>
                   </div>
                   <div>
-                    <label className="font-bold text-slate-700">Kategori Pos</label>
-                    <input type="text" required placeholder="Contoh: Kebersihan / Keamanan / Donasi" value={newTrx.category} onChange={e=>setNewTrx({...newTrx, category: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
+                    <label className="font-bold text-slate-700">Kategori</label>
+                    <input type="text" required placeholder="Operasional / Kebersihan" value={newTrx.category} onChange={e=>setNewTrx({...newTrx, category: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div>
                     <label className="font-bold text-slate-700">Uraian / Keterangan</label>
-                    <input type="text" required placeholder="Rincian keterangan transaksi..." value={newTrx.description} onChange={e=>setNewTrx({...newTrx, description: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
+                    <input type="text" required placeholder="Rincian transaksi..." value={newTrx.description} onChange={e=>setNewTrx({...newTrx, description: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div>
-                    <label className="font-bold text-slate-700">Nominal Transaksi (Rp)</label>
-                    <input type="number" required placeholder="100000" value={newTrx.amount} onChange={e=>setNewTrx({...newTrx, amount: e.target.value})} className="w-full bg-slate-50 border p-2.5 rounded-xl mt-1 focus:outline-blue-500" />
+                    <label className="font-bold text-slate-700">Nominal (Rp)</label>
+                    <input type="number" required placeholder="100000" value={newTrx.amount} onChange={e=>setNewTrx({...newTrx, amount: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
                   </div>
                   <div className="pt-2 flex gap-2">
-                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2.5 rounded-xl">Simpan Transaksi</button>
-                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl">Batal</button>
+                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2 rounded-xl">Simpan Mutasi</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl">Batal</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* Modal 4: Lihat Bukti Resi */}
-          {modalType === 'viewProof' && (
+          {/* Modal Admin: Buat Pengumuman */}
+          {modalType === 'addAnnouncement' && (
             <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white text-slate-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border">
-                <div className="p-3 bg-brand-blue text-white flex justify-between items-center">
-                  <h3 className="font-bold text-xs">Pratinjau Bukti Transfer Resi</h3>
+                <div className="p-3.5 bg-brand-blue text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Buat Pengumuman Resmi Pak Sarjito</h3>
                   <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-                <div className="p-4 flex flex-col items-center space-y-3">
-                  <img src={selectedProof} alt="Bukti Resi" className="rounded-xl border max-h-80 object-cover" />
+                <form onSubmit={handleAddAnnouncement} className="p-4 space-y-2.5 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700">Judul Pengumuman</label>
+                    <input type="text" required placeholder="Judul Pengumuman..." value={newAnnouncement.title} onChange={e=>setNewAnnouncement({...newAnnouncement, title: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700">Isi Pengumuman</label>
+                    <textarea rows="3" required placeholder="Rincian pengumuman..." value={newAnnouncement.content} onChange={e=>setNewAnnouncement({...newAnnouncement, content: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1"></textarea>
+                  </div>
+                  <div className="pt-2 flex gap-2">
+                    <button type="submit" className="flex-1 bg-brand-blue text-white font-bold py-2 rounded-xl">Terbitkan Ke PWA</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl">Batal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Modal Preview Resi Transfer */}
+          {modalType === 'viewProof' && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white text-slate-800 rounded-2xl max-w-xs w-full overflow-hidden shadow-2xl border">
+                <div className="p-3 bg-brand-blue text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Bukti Resi Transfer Warga</h3>
+                  <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
+                </div>
+                <div className="p-3 flex flex-col items-center space-y-3">
+                  <img src={selectedProof} alt="Bukti Resi Transfer" className="rounded-xl border max-h-72 object-cover shadow" />
                   <button onClick={() => setModalType(null)} className="w-full bg-slate-900 text-white font-bold py-2 rounded-xl text-xs">Tutup Pratinjau</button>
                 </div>
               </div>
@@ -1327,6 +1235,7 @@
       );
     }
 
+    // Render React Application
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
