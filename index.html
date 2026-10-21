@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kas Warga — Full 15 Menus Responsive Prototype</title>
+  <title>Kas Warga — Full Interactive Demo Prototype</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,23 +35,68 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-slate-950">
 
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useMemo } = React;
+
+    // --- INITIAL MOCK DATA ---
+    const INITIAL_HOUSES = [
+      { id: 'H01', block: 'A-01', owner: 'Bpk. Ahmad Subagja', phone: '081234567890', status: 'Tetap', residents: 4, isOccupied: true },
+      { id: 'H02', block: 'A-02', owner: 'Ibu Ratna Sari', phone: '081298765432', status: 'Kontrak', residents: 3, isOccupied: true },
+      { id: 'H03', block: 'A-03', owner: 'Bpk. Hendra Gunawan', phone: '081311223344', status: 'Tetap', residents: 5, isOccupied: true },
+      { id: 'H04', block: 'B-01', owner: 'Drs. Bambang Wijaya', phone: '081555667788', status: 'Tetap', residents: 2, isOccupied: true },
+      { id: 'H05', block: 'B-02', owner: 'Rumah Kosong (Bpk. Roy)', phone: '081700998877', status: 'Kosong', residents: 0, isOccupied: false },
+    ];
+
+    const INITIAL_BILLINGS = [
+      { id: 'BILL-01', name: 'Iuran Keamanan & Kebersihan', amount: 75000, type: 'Rutin Bulanan', target: 'Semua Warga', status: 'Aktif' },
+      { id: 'BILL-02', name: 'Kas Rutin RT 05', amount: 25000, type: 'Rutin Bulanan', target: 'Semua Warga', status: 'Aktif' },
+      { id: 'BILL-03', name: 'Sumbangan Perayaan HUT RI', amount: 50000, type: 'Insidental', target: 'Warga Tetap', status: 'Selesai' },
+    ];
+
+    const INITIAL_PAYMENTS = [
+      { id: 'PAY-101', date: '2026-10-21', house: 'A-01 (Ahmad Subagja)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Transfer QRIS', status: 'Menunggu Verifikasi', proof: 'https://placehold.co/300x400/e2e8f0/1e293b?text=Bukti+Transfer+QRIS' },
+      { id: 'PAY-102', date: '2026-10-20', house: 'A-02 (Ratna Sari)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Transfer Bank', status: 'Menunggu Verifikasi', proof: 'https://placehold.co/300x400/e2e8f0/1e293b?text=Bukti+Transfer+BCA' },
+      { id: 'PAY-100', date: '2026-10-18', house: 'A-03 (Hendra Gunawan)', billing: 'Iuran Kebersihan & Kas (Okt 2026)', total: 100000, method: 'Tunai (Petugas)', status: 'Terverifikasi', proof: null },
+    ];
+
+    const INITIAL_CASHBOOK = [
+      { id: 'TRX-001', date: '2026-10-01', type: 'Pemasukan', category: 'Iuran Warga', description: 'Pembayaran Iuran A-03 Hendra', amount: 100000 },
+      { id: 'TRX-002', date: '2026-10-05', type: 'Pengeluaran', category: 'Keamanan', description: 'Gaji Petugas Satpam (2 Orang)', amount: 3000000 },
+      { id: 'TRX-003', date: '2026-10-10', type: 'Pengeluaran', category: 'Kebersihan', description: 'Pengangkutan Sampah Restribusi', amount: 1200000 },
+      { id: 'TRX-004', date: '2026-10-15', type: 'Pemasukan', category: 'Sewa Lapangan', description: 'Sewa Lapangan Badminton Warga', amount: 350000 },
+    ];
+
+    const INITIAL_REGISTRATIONS = [
+      { id: 'REG-01', name: 'Siti Rahmawati', block: 'B-03', type: 'Warga Baru (Kontrak)', phone: '082199887766', date: '2026-10-20', status: 'Pending' },
+      { id: 'REG-02', name: 'Agus Setiawan', block: 'A-04', type: 'Warga Baru (Pindahan)', phone: '085711223344', date: '2026-10-19', status: 'Pending' },
+    ];
 
     function App() {
-      // Responsive & Navigation States
+      // System Navigation & View Mode State
       const [viewMode, setViewMode] = useState('responsive'); // 'responsive' | 'desktop' | 'pwa'
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-      
-      const [adminPage, setAdminPage] = useState('billing'); // Default ke 'billing'
-      const [pwaPage, setPwaPage] = useState('tagihan');
-      
-      const [showAddIuranModal, setShowAddIuranModal] = useState(false);
+      const [adminPage, setAdminPage] = useState('dashboard');
       const [toast, setToast] = useState(null);
+
+      // Data States
+      const [houses, setHouses] = useState(INITIAL_HOUSES);
+      const [billings, setBillings] = useState(INITIAL_BILLINGS);
+      const [payments, setPayments] = useState(INITIAL_PAYMENTS);
+      const [cashbook, setCashbook] = useState(INITIAL_CASHBOOK);
+      const [registrations, setRegistrations] = useState(INITIAL_REGISTRATIONS);
+
+      // Modal States
+      const [modalType, setModalType] = useState(null); // 'addHouse' | 'addBilling' | 'addTransaction' | 'viewProof'
+      const [selectedProof, setSelectedProof] = useState(null);
+
+      // Form States
+      const [newHouse, setNewHouse] = useState({ block: '', owner: '', phone: '', status: 'Tetap', residents: 3 });
+      const [newBilling, setNewBilling] = useState({ name: '', amount: '', type: 'Rutin Bulanan', target: 'Semua Warga' });
+      const [newTrx, setNewTrx] = useState({ type: 'Pemasukan', category: 'Iuran Warga', description: '', amount: '' });
 
       useEffect(() => {
         if (window.lucide) {
@@ -59,35 +104,73 @@
         }
       });
 
-      const showToast = (msg) => {
-        setToast(msg);
+      const showToast = (message) => {
+        setToast(message);
         setTimeout(() => setToast(null), 3000);
       };
 
-      const navigateAdmin = (pageName) => {
-        setAdminPage(pageName);
-        setMobileMenuOpen(false); // Tutup drawer menu saat diklik di layar hp
+      // Financial Calculated Summaries
+      const totalIncome = useMemo(() => cashbook.filter(t => t.type === 'Pemasukan').reduce((acc, curr) => acc + Number(curr.amount), 0), [cashbook]);
+      const totalExpense = useMemo(() => cashbook.filter(t => t.type === 'Pengeluaran').reduce((acc, curr) => acc + Number(curr.amount), 0), [cashbook]);
+      const currentBalance = 24500000 + totalIncome - totalExpense;
+
+      // Handlers
+      const handleAddHouse = (e) => {
+        e.preventDefault();
+        const created = { ...newHouse, id: `H${Date.now()}`, isOccupied: newHouse.status !== 'Kosong', residents: Number(newHouse.residents) };
+        setHouses([...houses, created]);
+        setModalType(null);
+        setNewHouse({ block: '', owner: '', phone: '', status: 'Tetap', residents: 3 });
+        showToast('Data rumah & warga berhasil ditambahkan!');
+      };
+
+      const handleAddBilling = (e) => {
+        e.preventDefault();
+        const created = { ...newBilling, id: `BILL-${Date.now()}`, amount: Number(newBilling.amount), status: 'Aktif' };
+        setBillings([...billings, created]);
+        setModalType(null);
+        setNewBilling({ name: '', amount: '', type: 'Rutin Bulanan', target: 'Semua Warga' });
+        showToast('Jenis iuran baru telah berhasil dipublikasikan!');
+      };
+
+      const handleAddTrx = (e) => {
+        e.preventDefault();
+        const created = { ...newTrx, id: `TRX-${Date.now()}`, date: new Date().toISOString().split('T')[0], amount: Number(newTrx.amount) };
+        setCashbook([created, ...cashbook]);
+        setModalType(null);
+        setNewTrx({ type: 'Pemasukan', category: 'Iuran Warga', description: '', amount: '' });
+        showToast('Transaksi baru dicatat ke dalam Buku Kas!');
+      };
+
+      const handleVerifyPayment = (id, isApprove) => {
+        setPayments(payments.map(p => p.id === id ? { ...p, status: isApprove ? 'Terverifikasi' : 'Ditolak' } : p));
+        showToast(isApprove ? 'Pembayaran berhasil diverifikasi!' : 'Pembayaran ditolak.');
+      };
+
+      const handleApproveRegistration = (id) => {
+        setRegistrations(registrations.filter(r => r.id !== id));
+        showToast('Pendaftaran warga disetujui & dimasukkan ke database!');
       };
 
       return (
-        <div className="min-h-screen flex flex-col bg-slate-950">
+        <div className="min-h-screen flex flex-col bg-slate-950 font-sans">
           
-          {/* Toast Notification */}
+          {/* TOAST NOTIFICATION */}
           {toast && (
-            <div className="fixed top-5 right-5 z-50 bg-emerald-500 text-slate-950 font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm animate-bounce">
-              <i data-lucide="check-circle-2" className="w-5 h-5"></i>
-              {toast}
+            <div className="fixed top-5 right-5 z-50 bg-emerald-500 text-slate-950 font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-xs sm:text-sm animate-bounce border border-emerald-300">
+              <i data-lucide="check-circle-2" className="w-5 h-5 flex-shrink-0"></i>
+              <span>{toast}</span>
             </div>
           )}
 
-          {/* Header Switcher Bar */}
-          <header className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 z-30 flex-shrink-0">
+          {/* HEADER DEMO SWITCHER BAR */}
+          <header className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 sm:px-6 z-30 flex-shrink-0">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="bg-emerald-500 text-slate-950 font-black rounded-lg px-2.5 py-1 text-xs tracking-wider">
-                KAS WARGA
+              <div className="bg-emerald-500 text-slate-950 font-black rounded-lg px-2.5 py-1 text-xs tracking-wider flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
+                <i data-lucide="wallet" className="w-4 h-4"></i> KAS WARGA
               </div>
-              <span className="text-xs font-semibold text-slate-300 hidden md:inline">
-                Sistem Kas Warga — 15 Menu Admin Lengkap & Responsif
+              <span className="text-xs font-semibold text-slate-300 hidden md:inline border-l border-slate-700 pl-3">
+                Sistem Manajemen Kas & Warga RT/RW (Siap Demo)
               </span>
             </div>
 
@@ -95,38 +178,31 @@
             <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px] sm:text-xs">
               <button 
                 onClick={() => setViewMode('responsive')} 
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${viewMode === 'responsive' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
-                <i data-lucide="layout" className="w-3.5 h-3.5"></i> Responsif (Auto)
-              </button>
-              <button 
-                onClick={() => setViewMode('desktop')} 
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${viewMode === 'desktop' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
-                <i data-lucide="monitor" className="w-3.5 h-3.5"></i> Desktop
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${viewMode === 'responsive' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>
+                <i data-lucide="layout" className="w-3.5 h-3.5"></i> Admin (Responsive)
               </button>
               <button 
                 onClick={() => setViewMode('pwa')} 
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${viewMode === 'pwa' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
-                <i data-lucide="smartphone" className="w-3.5 h-3.5"></i> PWA Warga
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-medium transition ${viewMode === 'pwa' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>
+                <i data-lucide="smartphone" className="w-3.5 h-3.5"></i> Portal Warga (PWA)
               </button>
             </div>
           </header>
 
-          {/* Canvas Main Container */}
-          <div className="flex-1 flex overflow-hidden p-2 sm:p-4 md:p-6 bg-slate-950/80 justify-center">
+          {/* CANVAS MAIN CONTAINER */}
+          <div className="flex-1 flex overflow-hidden p-2 sm:p-4 md:p-6 bg-slate-950 justify-center">
             
-            {/* ------------------------------------------------------------- */}
-            {/* PORTAL ADMIN (RESPONSIF + 15 MENU UTUH)                      */}
-            {/* ------------------------------------------------------------- */}
+            {/* PORTAL ADMIN */}
             {(viewMode === 'responsive' || viewMode === 'desktop') && (
               <div className="w-full max-w-7xl bg-slate-100 text-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-800">
                 
-                {/* Browser Top Navigation Simulation */}
-                <div className="h-9 bg-slate-200 border-b border-slate-300 flex items-center justify-between px-4 flex-shrink-0">
+                {/* Browser Bar Simulation */}
+                <div className="h-10 bg-slate-200 border-b border-slate-300 flex items-center justify-between px-3 sm:px-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-                      className="lg:hidden p-1.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg flex items-center gap-1 text-xs font-bold">
-                      <i data-lucide="menu" className="w-4 h-4"></i> Menu Admin
+                      className="lg:hidden p-1.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg flex items-center gap-1.5 text-xs font-bold">
+                      <i data-lucide="menu" className="w-4 h-4"></i> 15 Menu Admin
                     </button>
                     <div className="hidden sm:flex gap-1.5">
                       <div className="w-3 h-3 rounded-full bg-rose-500"></div>
@@ -135,230 +211,724 @@
                     </div>
                   </div>
                   <div className="text-center truncate px-2">
-                    <span className="bg-white/80 px-3 py-0.5 rounded-md text-[10px] sm:text-[11px] text-slate-600 font-mono border border-slate-300 truncate inline-block max-w-[200px] sm:max-w-none">
-                      https://bogorvaley.my.id/admin/{adminPage}
+                    <span className="bg-white/80 px-3 py-0.5 rounded-md text-[10px] sm:text-[11px] text-slate-600 font-mono border border-slate-300 truncate inline-block max-w-[180px] sm:max-w-none">
+                      https://kaswarga.id/rt05/admin/{adminPage}
                     </span>
                   </div>
-                  <div className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                  <div className="text-[10px] font-extrabold text-emerald-800 bg-emerald-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
                     RT 05 / RW 02
                   </div>
                 </div>
 
                 <div className="flex-1 flex overflow-hidden relative">
                   
-                  {/* ================= SIDEBAR NAV (SELURUH 15 MENU LENGKAP) ================= */}
+                  {/* SIDEBAR NAVIGATION (15 MENU UTUH FULL FUNCTIONAL) */}
                   <aside className={`
                     absolute lg:relative top-0 left-0 bottom-0 z-20 w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 text-xs transition-transform duration-300 ease-in-out
                     ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
                   `}>
-                    <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-sm">RT</div>
+                    <div className="p-3.5 border-b border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-sm">RT</div>
                         <div>
-                          <h2 className="font-bold text-white text-sm">Portal Admin RT 05</h2>
-                          <p className="text-[10px] text-emerald-400 font-medium">● Lisensi Aktif</p>
+                          <h2 className="font-bold text-white text-xs sm:text-sm">Portal RT 05 / RW 02</h2>
+                          <p className="text-[10px] text-emerald-400 font-medium">● System Online & Active</p>
                         </div>
                       </div>
-                      <button onClick={() => setMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
+                      <button onClick={() => setMobileMenuOpen(false)} className="lg:hidden text-slate-400 hover:text-white p-1">
                         <i data-lucide="x" className="w-5 h-5"></i>
                       </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-3 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-3 space-y-3">
                       
                       {/* Section 1: Dashboard */}
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Main</p>
-                        <button onClick={() => navigateAdmin('dashboard')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'dashboard' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Ringkasan</p>
+                        <button onClick={() => { setAdminPage('dashboard'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'dashboard' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                           <i data-lucide="layout-dashboard" className="w-4 h-4"></i> 1. Dashboard
                         </button>
                       </div>
 
-                      {/* Section 2: Keanggotaan & Warga */}
+                      {/* Section 2: Keanggotaan */}
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Warga & Rumah</p>
-                        <button onClick={() => navigateAdmin('residents')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'residents' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="users" className="w-4 h-4"></i> 2. Data Warga & Rumah
+                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Master Data Warga</p>
+                        <button onClick={() => { setAdminPage('residents'); setMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'residents' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <span className="flex items-center gap-2.5"><i data-lucide="users" className="w-4 h-4"></i> 2. Data Warga & Rumah</span>
+                          <span className="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{houses.length}</span>
                         </button>
                       </div>
 
-                      {/* Section 3: Keuangan & Kas */}
+                      {/* Section 3: Keuangan */}
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Keuangan & Kas</p>
-                        <button onClick={() => navigateAdmin('billing')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'billing' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="receipt" className="w-4 h-4"></i> 3. Tagihan & Iuran
+                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Modul Keuangan & Kas</p>
+                        <button onClick={() => { setAdminPage('billing'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'billing' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="receipt" className="w-4 h-4"></i> 3. Tagihan & Jenis Iuran
                         </button>
-                        <button onClick={() => navigateAdmin('payments')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'payments' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <span className="flex items-center gap-2.5"><i data-lucide="credit-card" className="w-4 h-4"></i> 4. Verifikasi Bayar</span>
-                          <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold">2</span>
+                        <button onClick={() => { setAdminPage('payments'); setMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'payments' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <span className="flex items-center gap-2.5"><i data-lucide="credit-card" className="w-4 h-4"></i> 4. Verifikasi Pembayaran</span>
+                          {payments.filter(p=>p.status==='Menunggu Verifikasi').length > 0 && (
+                            <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse">
+                              {payments.filter(p=>p.status==='Menunggu Verifikasi').length}
+                            </span>
+                          )}
                         </button>
-                        <button onClick={() => navigateAdmin('finance')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'finance' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="file-text" className="w-4 h-4"></i> 5. Buku Kas & Transaksi
+                        <button onClick={() => { setAdminPage('finance'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'finance' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="book-open" className="w-4 h-4"></i> 5. Buku Kas & Transaksi
                         </button>
-                        <button onClick={() => navigateAdmin('expenses')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'expenses' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="trending-down" className="w-4 h-4"></i> 6. Pengeluaran & Anggaran
+                        <button onClick={() => { setAdminPage('expenses'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'expenses' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="pie-chart" className="w-4 h-4"></i> 6. Pos Pengeluaran
                         </button>
-                        <button onClick={() => navigateAdmin('reconciliation')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'reconciliation' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="scale" className="w-4 h-4"></i> 7. Rekonsiliasi Saldo
+                        <button onClick={() => { setAdminPage('reconciliation'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'reconciliation' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="scale" className="w-4 h-4"></i> 7. Rekonsiliasi Saldo Bank
                         </button>
-                        <button onClick={() => navigateAdmin('reports')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'reports' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                        <button onClick={() => { setAdminPage('reports'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'reports' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                           <i data-lucide="file-spreadsheet" className="w-4 h-4"></i> 8. Laporan & Tutup Buku
                         </button>
                       </div>
 
                       {/* Section 4: Komunikasi */}
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Informasi & Komunikasi</p>
-                        <button onClick={() => navigateAdmin('announcements')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'announcements' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Komunikasi & Publikasi</p>
+                        <button onClick={() => { setAdminPage('announcements'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'announcements' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                           <i data-lucide="megaphone" className="w-4 h-4"></i> 9. Pengumuman & LPJ
                         </button>
-                        <button onClick={() => navigateAdmin('whatsapp')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'whatsapp' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="message-square" className="w-4 h-4"></i> 10. Integrasi WhatsApp
+                        <button onClick={() => { setAdminPage('whatsapp'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'whatsapp' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="message-square" className="w-4 h-4"></i> 10. Integrasi WhatsApp Gateway
                         </button>
                       </div>
 
                       {/* Section 5: Pengaturan Sistem */}
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Pengaturan Sistem</p>
-                        <button onClick={() => navigateAdmin('registrations')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'registrations' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="user-plus" className="w-4 h-4"></i> 11. Pendaftaran Warga
+                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">Pengaturan & Keamanan</p>
+                        <button onClick={() => { setAdminPage('registrations'); setMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'registrations' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <span className="flex items-center gap-2.5"><i data-lucide="user-plus" className="w-4 h-4"></i> 11. Pendaftaran Warga Baru</span>
+                          {registrations.length > 0 && <span className="bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full">{registrations.length}</span>}
                         </button>
-                        <button onClick={() => navigateAdmin('registration-links')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'registration-links' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="link" className="w-4 h-4"></i> 12. Link Pendaftaran
+                        <button onClick={() => { setAdminPage('registration-links'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'registration-links' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="link" className="w-4 h-4"></i> 12. Link Form Mandiri Warga
                         </button>
-                        <button onClick={() => navigateAdmin('users')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'users' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="key-round" className="w-4 h-4"></i> 13. Pengguna & Hak Akses
+                        <button onClick={() => { setAdminPage('users'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'users' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="shield-check" className="w-4 h-4"></i> 13. Manajemen Pengurus & Akses
                         </button>
-                        <button onClick={() => navigateAdmin('audit')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'audit' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="shield" className="w-4 h-4"></i> 14. Audit Log
+                        <button onClick={() => { setAdminPage('audit'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'audit' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="history" className="w-4 h-4"></i> 14. Audit Log Aktivitas
                         </button>
-                        <button onClick={() => navigateAdmin('license')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'license' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="check-circle-2" className="w-4 h-4"></i> 15. Lisensi Aplikasi
+                        <button onClick={() => { setAdminPage('license'); setMobileMenuOpen(false); }} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition text-left ${adminPage === 'license' ? 'bg-emerald-600 text-white shadow' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="badge-check" className="w-4 h-4"></i> 15. Status Lisensi Aplikasi
                         </button>
                       </div>
 
                     </div>
 
-                    <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400">
-                      <p className="font-semibold text-white">Pak Budi (Bendahara)</p>
-                      <p className="text-[10px] text-slate-500">Sesi Login Terverifikasi</p>
+                    <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400 flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-xs">B</div>
+                      <div>
+                        <p className="font-bold text-white leading-tight">Bpk. Budi Santoso</p>
+                        <p className="text-[10px] text-emerald-400">Bendahara RT (Online)</p>
+                      </div>
                     </div>
                   </aside>
 
-                  {/* Backdrop Overlay Mobile */}
+                  {/* Backdrop Overlay Mobile Navigation */}
                   {mobileMenuOpen && (
-                    <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-slate-950/60 z-10 lg:hidden"></div>
+                    <div onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 bg-slate-950/70 z-10 lg:hidden backdrop-blur-sm"></div>
                   )}
 
-                  {/* MAIN CONTENT AREA */}
+                  {/* MAIN CONTENT WORKSPACE */}
                   <main className="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
                     
-                    {/* Top Search Bar */}
-                    <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
-                      <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl w-48 sm:w-72 text-xs">
-                        <i data-lucide="search" className="w-4 h-4 text-slate-400"></i>
-                        <input type="text" placeholder="Cari data..." className="bg-transparent focus:outline-none w-full" />
+                    {/* Top Admin Bar */}
+                    <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 sticky top-0 z-10">
+                      <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl w-48 sm:w-80 text-xs">
+                        <i data-lucide="search" className="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+                        <input type="text" placeholder="Cari nama warga, nomor rumah, transaksi..." className="bg-transparent focus:outline-none w-full text-slate-700" />
                       </div>
-                      <div className="flex items-center gap-3 text-xs">
-                        <button onClick={() => showToast('Notifikasi')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl relative text-slate-600">
+                      <div className="flex items-center gap-2 sm:gap-3 text-xs">
+                        <button onClick={() => showToast('Notifikasi: 2 Konfirmasi Pembayaran Baru Masuk!')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl relative text-slate-600 transition">
                           <i data-lucide="bell" className="w-4 h-4"></i>
                           <span className="w-2 h-2 bg-rose-500 rounded-full absolute top-1 right-1"></span>
                         </button>
-                        <span className="font-bold text-slate-700 hidden sm:inline">Portal Admin RT 05</span>
+                        <button onClick={() => showToast('Mengeksport Data Backup System...')} className="hidden sm:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl font-bold transition">
+                          <i data-lucide="download" className="w-3.5 h-3.5"></i> Export Data
+                        </button>
                       </div>
                     </div>
 
-                    {/* DYNAMIC PAGE CONTENT */}
+                    {/* DYNAMIC CONTENT PER MENU */}
                     <div className="p-4 sm:p-6 space-y-6">
                       
-                      {/* MENU 3: BILLING & TAGIHAN */}
-                      {adminPage === 'billing' && (
-                        <div className="space-y-6">
-                          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div>
-                              <h1 className="text-lg sm:text-xl font-bold text-slate-800">3. Pengaturan Iuran & Tagihan</h1>
-                              <p className="text-xs text-slate-500">Kelola jenis iuran, buat tarif baru, dan terbitkan tagihan warga.</p>
-                            </div>
-                            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                              <button onClick={() => setShowAddIuranModal(true)} className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
-                                <i data-lucide="plus" className="w-4 h-4"></i> Tambah Jenis Iuran
-                              </button>
-                              <button onClick={() => showToast('Tagihan Bulanan Oktober Di-generate!')} className="flex-1 sm:flex-initial bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
-                                <i data-lucide="zap" className="w-4 h-4"></i> Generate Tagihan Bulanan
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
-                            <h3 className="font-bold text-slate-800 text-sm border-b pb-2 flex items-center gap-2">
-                              <i data-lucide="file-plus" className="w-4 h-4 text-emerald-600"></i> Form Terbitkan Tagihan Baru
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-                              <div className="space-y-1">
-                                <label className="font-bold text-slate-700">Pilih Jenis Iuran / Tarif</label>
-                                <select className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-medium text-slate-800">
-                                  <option>Iuran Keamanan & Kebersihan (Rp 75.000)</option>
-                                  <option>Kas Rutin RT (Rp 50.000)</option>
-                                </select>
-                              </div>
-                              <div className="space-y-1">
-                                <label className="font-bold text-slate-700">Periode Tagihan</label>
-                                <input type="month" defaultValue="2026-10" className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-medium text-slate-800" />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="font-bold text-slate-700">Target Warga</label>
-                                <select className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-medium text-slate-800">
-                                  <option>Seluruh Warga Aktif (78 Rumah)</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2 border-t">
-                              <p className="text-[11px] text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
-                                ⚠️ Pencegahan tagihan ganda periode yang sama aktif.
-                              </p>
-                              <button onClick={() => showToast('Tagihan berhasil diterbitkan!')} className="bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm text-center">
-                                🚀 Terbitkan Tagihan Sekarang
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                            <h3 className="font-bold text-slate-800 text-sm border-b pb-2">Jenis Iuran Terdaftar:</h3>
-                            <div className="space-y-3">
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs gap-3">
-                                <div>
-                                  <p className="font-bold text-slate-800 text-sm">Iuran Keamanan & Kebersihan</p>
-                                  <p className="text-[11px] text-slate-500">Rutin Bulanan | Rp 75.000 / Bulan</p>
-                                </div>
-                                <div className="flex gap-1">
-                                  <button onClick={() => showToast('Edit Iuran')} className="px-2.5 py-1 bg-white border text-slate-700 font-bold rounded-lg text-[11px]">Edit</button>
-                                  <button onClick={() => showToast('Nonaktifkan Iuran')} className="px-2.5 py-1 bg-rose-50 text-rose-700 font-bold rounded-lg text-[11px]">Nonaktifkan</button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
                       {/* MENU 1: DASHBOARD */}
                       {adminPage === 'dashboard' && (
-                        <div className="space-y-4">
-                          <h1 className="text-xl font-bold text-slate-800">1. Dashboard Utama</h1>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                              <p className="text-slate-500">Total Saldo Kas RT</p>
-                              <p className="text-xl font-black text-slate-800">Rp 24.850.000</p>
+                        <div className="space-y-6">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                              <h1 className="text-xl font-extrabold text-slate-800">1. Dashboard Ikhtisar RT 05</h1>
+                              <p className="text-xs text-slate-500">Ringkasan real-time posisi kas, tagihan warga, dan statistik keanggotaan.</p>
+                            </div>
+                            <button onClick={() => setModalType('addTransaction')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                              <i data-lucide="plus-circle" className="w-4 h-4"></i> Catat Transaksi Kas
+                            </button>
+                          </div>
+
+                          {/* Stat Cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                              <p className="text-slate-500 font-semibold flex items-center gap-1.5">
+                                <i data-lucide="wallet" className="w-4 h-4 text-emerald-600"></i> Total Saldo Kas RT
+                              </p>
+                              <p className="text-2xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                              <span className="inline-block text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">● Terverifikasi Balans</span>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                              <p className="text-slate-500 font-semibold flex items-center gap-1.5">
+                                <i data-lucide="arrow-down-left" className="w-4 h-4 text-emerald-600"></i> Pemasukan Bulan Ini
+                              </p>
+                              <p className="text-2xl font-black text-emerald-600">Rp {totalIncome.toLocaleString('id-ID')}</p>
+                              <p className="text-[10px] text-slate-400">Dari {payments.filter(p=>p.status==='Terverifikasi').length} transaksi iuran</p>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                              <p className="text-slate-500 font-semibold flex items-center gap-1.5">
+                                <i data-lucide="arrow-up-right" className="w-4 h-4 text-rose-600"></i> Pengeluaran Bulan Ini
+                              </p>
+                              <p className="text-2xl font-black text-rose-600">Rp {totalExpense.toLocaleString('id-ID')}</p>
+                              <p className="text-[10px] text-slate-400">Gaji satpam & operasional</p>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+                              <p className="text-slate-500 font-semibold flex items-center gap-1.5">
+                                <i data-lucide="home" className="w-4 h-4 text-blue-600"></i> Total Rumah Terdata
+                              </p>
+                              <p className="text-2xl font-black text-slate-800">{houses.length} Rumah</p>
+                              <p className="text-[10px] text-blue-600 font-bold">{houses.filter(h=>h.isOccupied).length} Terisi, {houses.filter(h=>!h.isOccupied).length} Kosong</p>
+                            </div>
+                          </div>
+
+                          {/* Quick Overview Tables */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                              <div className="flex justify-between items-center border-b pb-2">
+                                <h3 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                  <i data-lucide="clock" className="w-4 h-4 text-amber-500"></i> Konfirmasi Bayar Terbaru
+                                </h3>
+                                <button onClick={() => setAdminPage('payments')} className="text-xs font-bold text-emerald-600 hover:underline">Lihat Semua →</button>
+                              </div>
+                              <div className="space-y-2 text-xs">
+                                {payments.map(p => (
+                                  <div key={p.id} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div>
+                                      <p className="font-bold text-slate-800">{p.house}</p>
+                                      <p className="text-[10px] text-slate-500">{p.billing} • Rp {p.total.toLocaleString('id-ID')}</p>
+                                    </div>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.status === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800 animate-pulse'}`}>
+                                      {p.status}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                              <div className="flex justify-between items-center border-b pb-2">
+                                <h3 className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                  <i data-lucide="list-checks" className="w-4 h-4 text-emerald-600"></i> Mutasi Kas Terbaru
+                                </h3>
+                                <button onClick={() => setAdminPage('finance')} className="text-xs font-bold text-emerald-600 hover:underline">Buku Kas →</button>
+                              </div>
+                              <div className="space-y-2 text-xs">
+                                {cashbook.slice(0, 4).map(t => (
+                                  <div key={t.id} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div>
+                                      <p className="font-bold text-slate-800">{t.description}</p>
+                                      <p className="text-[10px] text-slate-500">{t.date} • {t.category}</p>
+                                    </div>
+                                    <span className={`font-black ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                      {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
                       )}
 
-                      {/* MENU FALLBACK UNTUK MENU LAINNYA */}
-                      {!['billing', 'dashboard'].includes(adminPage) && (
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-xs space-y-2">
-                          <span className="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full">Menu Active: {adminPage}</span>
-                          <h2 className="text-base font-bold text-slate-800 capitalize mt-2">Halaman Menu {adminPage}</h2>
-                          <p className="text-slate-500">Seluruh 15 menu admin terintegrasi penuh dalam alur navigasi ini.</p>
+                      {/* MENU 2: RESIDENTS */}
+                      {adminPage === 'residents' && (
+                        <div className="space-y-5">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                              <h1 className="text-xl font-bold text-slate-800">2. Master Data Warga & Rumah</h1>
+                              <p className="text-xs text-slate-500">Kelola blok rumah, pemilik/penghuni, status hunian, serta nomor Kontak WA.</p>
+                            </div>
+                            <button onClick={() => setModalType('addHouse')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                              <i data-lucide="plus" className="w-4 h-4"></i> Tambah Warga / Rumah
+                            </button>
+                          </div>
+
+                          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                  <tr>
+                                    <th className="p-3">Blok & No</th>
+                                    <th className="p-3">Nama Pemilik / Penghuni</th>
+                                    <th className="p-3">Kontak WhatsApp</th>
+                                    <th className="p-3">Status Hunian</th>
+                                    <th className="p-3">Jumlah Jiwa</th>
+                                    <th className="p-3 text-right">Aksi</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200">
+                                  {houses.map(h => (
+                                    <tr key={h.id} className="hover:bg-slate-50">
+                                      <td className="p-3 font-bold text-slate-900">{h.block}</td>
+                                      <td className="p-3 font-semibold text-slate-800">{h.owner}</td>
+                                      <td className="p-3 text-slate-600 font-mono">{h.phone}</td>
+                                      <td className="p-3">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${h.status === 'Tetap' ? 'bg-emerald-100 text-emerald-800' : h.status === 'Kontrak' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-600'}`}>
+                                          {h.status}
+                                        </span>
+                                      </td>
+                                      <td className="p-3 text-slate-700">{h.residents} Jiwa</td>
+                                      <td className="p-3 text-right space-x-1">
+                                        <button onClick={() => showToast(`Kirim Pesan Tagihan WA ke ${h.owner}`)} className="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-lg hover:bg-emerald-200">WA Tagihan</button>
+                                        <button onClick={() => showToast(`Edit Data ${h.block}`)} className="px-2 py-1 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200">Edit</button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 3: BILLING */}
+                      {adminPage === 'billing' && (
+                        <div className="space-y-5">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                              <h1 className="text-xl font-bold text-slate-800">3. Pengaturan Jenis Iuran & Tagihan</h1>
+                              <p className="text-xs text-slate-500">Buat komponen iuran rutin/insidental serta terbitkan tagihan bulanan.</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <button onClick={() => setModalType('addBilling')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                                <i data-lucide="plus" className="w-4 h-4"></i> Tambah Tarif Iuran
+                              </button>
+                              <button onClick={() => showToast('Tagihan Periode Oktober 2026 Diterbitkan untuk Seluruh Warga!')} className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                                <i data-lucide="send" className="w-4 h-4"></i> Terbitkan Tagihan Bulan Ini
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            {billings.map(b => (
+                              <div key={b.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+                                <div className="space-y-1.5">
+                                  <div className="flex justify-between items-start">
+                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md">{b.type}</span>
+                                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">{b.status}</span>
+                                  </div>
+                                  <h3 className="font-bold text-slate-800 text-sm leading-snug">{b.name}</h3>
+                                  <p className="text-xl font-black text-slate-900">Rp {b.amount.toLocaleString('id-ID')} <span className="text-xs text-slate-400 font-normal">/ Rumah</span></p>
+                                  <p className="text-[11px] text-slate-500">Target: {b.target}</p>
+                                </div>
+                                <div className="pt-2 border-t flex gap-2">
+                                  <button onClick={() => showToast(`Edit ${b.name}`)} className="flex-1 bg-slate-100 hover:bg-slate-200 font-bold py-1.5 rounded-lg text-slate-700">Edit Nominal</button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 4: PAYMENTS */}
+                      {adminPage === 'payments' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">4. Verifikasi Pembayaran Iuran Warga</h1>
+                            <p className="text-xs text-slate-500">Periksa konfirmasi transfer masuk dari aplikasi PWA warga.</p>
+                          </div>
+
+                          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-100 text-slate-700 font-bold border-b">
+                                  <tr>
+                                    <th className="p-3">Tgl Transfer</th>
+                                    <th className="p-3">Warga / Rumah</th>
+                                    <th className="p-3">Tagihan</th>
+                                    <th className="p-3">Nominal Transfer</th>
+                                    <th className="p-3">Metode Bayar</th>
+                                    <th className="p-3">Bukti Resi</th>
+                                    <th className="p-3">Status</th>
+                                    <th className="p-3 text-right">Aksi Verifikasi</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200">
+                                  {payments.map(p => (
+                                    <tr key={p.id} className="hover:bg-slate-50">
+                                      <td className="p-3 text-slate-600">{p.date}</td>
+                                      <td className="p-3 font-bold text-slate-800">{p.house}</td>
+                                      <td className="p-3 text-slate-700">{p.billing}</td>
+                                      <td className="p-3 font-black text-slate-900">Rp {p.total.toLocaleString('id-ID')}</td>
+                                      <td className="p-3 font-medium text-slate-600">{p.method}</td>
+                                      <td className="p-3">
+                                        {p.proof ? (
+                                          <button onClick={() => { setSelectedProof(p.proof); setModalType('viewProof'); }} className="text-emerald-600 font-bold underline hover:text-emerald-700 flex items-center gap-1">
+                                            <i data-lucide="image" className="w-3.5 h-3.5"></i> Lihat Resi
+                                          </button>
+                                        ) : <span className="text-slate-400 font-italic">Tunai / Tanpa Resi</span>}
+                                      </td>
+                                      <td className="p-3">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.status === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Ditolak' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800 font-bold animate-pulse'}`}>
+                                          {p.status}
+                                        </span>
+                                      </td>
+                                      <td className="p-3 text-right space-x-1">
+                                        {p.status === 'Menunggu Verifikasi' && (
+                                          <>
+                                            <button onClick={() => handleVerifyPayment(p.id, true)} className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[11px]">Terima</button>
+                                            <button onClick={() => handleVerifyPayment(p.id, false)} className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg text-[11px]">Tolak</button>
+                                          </>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 5: FINANCE (BUKU KAS) */}
+                      {adminPage === 'finance' && (
+                        <div className="space-y-5">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                              <h1 className="text-xl font-bold text-slate-800">5. Buku Kas & Ledger Transaksi Utama</h1>
+                              <p className="text-xs text-slate-500">Catatan kronologis seluruh arus masuk dan keluar keuangan RT.</p>
+                            </div>
+                            <button onClick={() => setModalType('addTransaction')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow">
+                              <i data-lucide="plus" className="w-4 h-4"></i> Catat Mutasi Baru
+                            </button>
+                          </div>
+
+                          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-100 text-slate-700 font-bold border-b">
+                                  <tr>
+                                    <th className="p-3">ID TRX</th>
+                                    <th className="p-3">Tanggal</th>
+                                    <th className="p-3">Jenis</th>
+                                    <th className="p-3">Kategori Pos</th>
+                                    <th className="p-3">Keterangan / Deskripsi</th>
+                                    <th className="p-3 text-right">Nominal (Rp)</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200">
+                                  {cashbook.map(t => (
+                                    <tr key={t.id} className="hover:bg-slate-50">
+                                      <td className="p-3 text-slate-500 font-mono text-[11px]">{t.id}</td>
+                                      <td className="p-3 text-slate-600">{t.date}</td>
+                                      <td className="p-3">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.type === 'Pemasukan' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                                          {t.type}
+                                        </span>
+                                      </td>
+                                      <td className="p-3 font-semibold text-slate-700">{t.category}</td>
+                                      <td className="p-3 font-medium text-slate-800">{t.description}</td>
+                                      <td className={`p-3 text-right font-black ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        {t.type === 'Pemasukan' ? '+' : '-'} {t.amount.toLocaleString('id-ID')}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 6: EXPENSES */}
+                      {adminPage === 'expenses' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">6. Pengawasan Pos Pengeluaran & Anggaran</h1>
+                            <p className="text-xs text-slate-500">Anggaran biaya operasional RT (Satpam, Sampah, Listrik Pos, Kegiatan).</p>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                              <h3 className="font-bold text-slate-800 text-sm">Gaji & Honor Satpam</h3>
+                              <p className="text-slate-500">Anggaran Bulanan: Rp 3.000.000</p>
+                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="bg-emerald-500 h-full w-full"></div>
+                              </div>
+                              <p className="text-[10px] font-bold text-emerald-600">100% Terealisasi (Lunas Bulan Ini)</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                              <h3 className="font-bold text-slate-800 text-sm">Retribusi Kebersihan DLH</h3>
+                              <p className="text-slate-500">Anggaran Bulanan: Rp 1.200.000</p>
+                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="bg-emerald-500 h-full w-full"></div>
+                              </div>
+                              <p className="text-[10px] font-bold text-emerald-600">100% Terealisasi</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                              <h3 className="font-bold text-slate-800 text-sm">Pemeliharaan Fasilitas Pos</h3>
+                              <p className="text-slate-500">Anggaran Bulanan: Rp 500.000</p>
+                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="bg-amber-500 h-full w-1/3"></div>
+                              </div>
+                              <p className="text-[10px] font-bold text-amber-600">33% Terpakai (Sisa Rp 335.000)</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 7: RECONCILIATION */}
+                      {adminPage === 'reconciliation' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">7. Rekonsiliasi Saldo Kas Bank vs Aplikasi</h1>
+                            <p className="text-xs text-slate-500">Pencocokan saldo fisik rekening Bank RT dengan catatan pembukuan sistem.</p>
+                          </div>
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-4">
+                              <div className="p-3 bg-slate-50 rounded-xl border">
+                                <p className="text-slate-500 font-semibold">Saldo Menurut Catatan Aplikasi Kas Warga</p>
+                                <p className="text-xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                              </div>
+                              <div className="p-3 bg-slate-50 rounded-xl border">
+                                <p className="text-slate-500 font-semibold">Saldo Rekening Bank Mandiri RT 05</p>
+                                <p className="text-xl font-black text-emerald-700">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                              </div>
+                            </div>
+                            <div className="flex justify-between items-center bg-emerald-50 text-emerald-800 p-3 rounded-xl border border-emerald-200 font-bold">
+                              <span className="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" className="w-5 h-5 text-emerald-600"></i> Status Rekonsiliasi: BALANCE (TIDAK ADA SELISIH)
+                              </span>
+                              <button onClick={() => showToast('Berhasil Mencetak Berita Acara Rekonsiliasi Saldo!')} className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[11px]">Cetak Berita Acara</button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 8: REPORTS */}
+                      {adminPage === 'reports' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">8. Laporan Keuangan & Tutup Buku</h1>
+                            <p className="text-xs text-slate-500">Eksport laporan pertanggungjawaban dalam format PDF/Excel untuk warga.</p>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                              <div className="flex items-center gap-2 text-emerald-600 font-bold">
+                                <i data-lucide="file-text" className="w-5 h-5"></i> Laporan Kas Bulanan (Oktober 2026)
+                              </div>
+                              <p className="text-slate-500">Rincian mutasi debit & kredit beserta grafik realisasi iuran warga.</p>
+                              <button onClick={() => showToast('Mendownload Laporan Kas PDF...')} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-xl">Download PDF Laporan</button>
+                            </div>
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                              <div className="flex items-center gap-2 text-emerald-600 font-bold">
+                                <i data-lucide="file-spreadsheet" className="w-5 h-5"></i> Rekap Tunggakan Iuran
+                              </div>
+                              <p className="text-slate-500">Daftar blok rumah yang memiliki sisa tunggakan iuran bulanan.</p>
+                              <button onClick={() => showToast('Mendownload Rekap Tunggakan Excel...')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl">Download Excel Rekap</button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 9: ANNOUNCEMENTS */}
+                      {adminPage === 'announcements' && (
+                        <div className="space-y-5">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h1 className="text-xl font-bold text-slate-800">9. Pengumuman RT & LPJ Transparan</h1>
+                              <p className="text-xs text-slate-500">Publikasikan kabar warga, kegiatan gotong royong, dan transparansi LPJ.</p>
+                            </div>
+                            <button onClick={() => showToast('Modal Buat Pengumuman')} className="bg-emerald-600 text-white font-bold text-xs px-3 py-2 rounded-xl">+ Buat Pengumuman</button>
+                          </div>
+                          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
+                            <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">Terpublikasi di PWA</span>
+                            <h3 className="font-bold text-slate-800 text-sm">Jadwal Kerja Bakti & Kerja Bersih Lingkungan RT 05</h3>
+                            <p className="text-slate-600">Diimbau kepada seluruh warga RT 05 untuk hadir dalam kegiatan kerja bakti pembersihan selokan pada Minggu, 25 Oktober 2026 jam 07.00 WIB.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 10: WHATSAPP */}
+                      {adminPage === 'whatsapp' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">10. Integrasi WhatsApp Blast & Bot Gateway</h1>
+                            <p className="text-xs text-slate-500">Kirim pengingat tagihan otomatis langsung ke nomor WhatsApp warga.</p>
+                          </div>
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+                            <div className="flex items-center justify-between border-b pb-3">
+                              <div>
+                                <p className="font-bold text-slate-800 text-sm">Status Server WA Gateway</p>
+                                <p className="text-emerald-600 font-semibold">● Terhubung (WhatsApp Nomor Official RT 05)</p>
+                              </div>
+                              <button onClick={() => showToast('Server WA Berhasil Diuji Cobakan!')} className="bg-slate-100 font-bold px-3 py-1.5 rounded-lg text-slate-700">Test Server Bot</button>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="font-bold text-slate-800">Fitur Otomatisasi Teraktifkan:</p>
+                              <div className="space-y-1.5">
+                                <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded accent-emerald-600" /> Kirim Pengingat Tagihan Otomatis Setiap Tanggal 1</label>
+                                <label className="flex items-center gap-2"><input type="checkbox" defaultChecked className="rounded accent-emerald-600" /> Kirim Kuitansi Otomatis Setelah Pembayaran Diverifikasi</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 11: REGISTRATIONS */}
+                      {adminPage === 'registrations' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">11. Verifikasi Pendaftaran Warga Baru</h1>
+                            <p className="text-xs text-slate-500">Persetujuan data warga baru yang mengisi form pendaftaran mandiri.</p>
+                          </div>
+                          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+                            {registrations.length === 0 ? (
+                              <div className="p-6 text-center text-slate-400">Tidak ada pendaftaran pending.</div>
+                            ) : (
+                              <table className="w-full text-left border-collapse">
+                                <thead className="bg-slate-100 text-slate-700 font-bold border-b">
+                                  <tr>
+                                    <th className="p-3">Nama Pemohon</th>
+                                    <th className="p-3">Rencana Blok</th>
+                                    <th className="p-3">Jenis Kepemilikan</th>
+                                    <th className="p-3">No. WhatsApp</th>
+                                    <th className="p-3">Tanggal Daftar</th>
+                                    <th className="p-3 text-right">Aksi Persetujuan</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200">
+                                  {registrations.map(r => (
+                                    <tr key={r.id}>
+                                      <td className="p-3 font-bold text-slate-800">{r.name}</td>
+                                      <td className="p-3 font-mono font-bold text-slate-700">{r.block}</td>
+                                      <td className="p-3">{r.type}</td>
+                                      <td className="p-3 text-slate-600">{r.phone}</td>
+                                      <td className="p-3 text-slate-500">{r.date}</td>
+                                      <td className="p-3 text-right">
+                                        <button onClick={() => handleApproveRegistration(r.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1 rounded-lg text-[11px]">
+                                          Setujui & Masukkan Warga
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 12: REGISTRATION LINKS */}
+                      {adminPage === 'registration-links' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">12. Link Link Form Pendaftaran Mandiri</h1>
+                            <p className="text-xs text-slate-500">Bagikan tautan ini ke grup WhatsApp RT agar warga baru mengisi data sendiri.</p>
+                          </div>
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 text-xs">
+                            <p className="font-bold text-slate-800">Link Form Pendaftaran Publik Warga RT 05:</p>
+                            <div className="flex gap-2">
+                              <input type="text" readOnly value="https://kaswarga.id/rt05/daftar-mandiri" className="w-full bg-slate-100 p-2.5 rounded-xl border font-mono text-slate-700" />
+                              <button onClick={() => showToast('Link Berhasil Menyalin Link Ke Clipboard!')} className="bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl flex-shrink-0">
+                                Salin Link
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 13: USERS */}
+                      {adminPage === 'users' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">13. Pengguna & Hak Akses Pengurus</h1>
+                            <p className="text-xs text-slate-500">Kelola akun login untuk Ketua RT, Sekretaris, dan Bendahara.</p>
+                          </div>
+                          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+                            <table className="w-full text-left border-collapse">
+                              <thead className="bg-slate-100 text-slate-700 font-bold border-b">
+                                <tr>
+                                  <th className="p-3">Nama Pengurus</th>
+                                  <th className="p-3">Jabatan / Role</th>
+                                  <th className="p-3">Username Login</th>
+                                  <th className="p-3">Akses Halaman</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-200">
+                                <tr>
+                                  <td className="p-3 font-bold text-slate-800">Bpk. Budi Santoso</td>
+                                  <td className="p-3"><span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Bendahara</span></td>
+                                  <td className="p-3 font-mono">bendahara_rt05</td>
+                                  <td className="p-3 text-slate-600">Akses Penuh Keuangan & Kas</td>
+                                </tr>
+                                <tr>
+                                  <td className="p-3 font-bold text-slate-800">Bpk. Ahmad Subagja</td>
+                                  <td className="p-3"><span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">Ketua RT</span></td>
+                                  <td className="p-3 font-mono">ketua_rt05</td>
+                                  <td className="p-3 text-slate-600">Akses Monitoring & Pengumuman</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 14: AUDIT */}
+                      {adminPage === 'audit' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">14. Audit Log Aktivitas Sistem</h1>
+                            <p className="text-xs text-slate-500">Rekam jejak digital seluruh tindakan edit, verifikasi, dan perubah data kas.</p>
+                          </div>
+                          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs">
+                            <div className="p-3 space-y-2 font-mono">
+                              <div className="p-2 bg-slate-50 rounded border text-slate-700">[2026-10-21 14:32] USER 'bendahara_rt05' memverifikasi pembayaran PAY-100 (Rp 100.000).</div>
+                              <div className="p-2 bg-slate-50 rounded border text-slate-700">[2026-10-20 09:15] USER 'ketua_rt05' menambahkan pengumuman baru ID #09.</div>
+                              <div className="p-2 bg-slate-50 rounded border text-slate-700">[2026-10-18 11:00] SYSTEM menerbitkan tagihan rutin bulanan periode Oktober 2026.</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* MENU 15: LICENSE */}
+                      {adminPage === 'license' && (
+                        <div className="space-y-5">
+                          <div>
+                            <h1 className="text-xl font-bold text-slate-800">15. Lisensi Aplikasi & Informasi Sistem</h1>
+                            <p className="text-xs text-slate-500">Status langganan platform Kas Warga RT 05.</p>
+                          </div>
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl">
+                                <i data-lucide="badge-check" className="w-6 h-6"></i>
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-slate-800 text-sm">Paket SaaS Kas Warga Enterprise RT/RW</h3>
+                                <p className="text-emerald-600 font-bold">● Status Lisensi: Aktif (Masa Aktif s/d 31 Des 2027)</p>
+                              </div>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl space-y-1 text-slate-600 border">
+                              <p><strong>Domain/Subdomain Terdaftar:</strong> bogorvaley.my.id / kaswarga.id/rt05</p>
+                              <p><strong>Limit Warga:</strong> Unlimited (Maksimal 1.000 KK)</p>
+                              <p><strong>Versi Sistem:</strong> Kas Warga v3.5-PRO (Build 2026)</p>
+                            </div>
+                          </div>
                         </div>
                       )}
 
@@ -370,87 +940,225 @@
               </div>
             )}
 
-            {/* PORTAL WARGA (PWA FRAME) */}
+            {/* PORTAL WARGA (MOBILE PWA FRAME) */}
             {viewMode === 'pwa' && (
-              <div className="w-[350px] mx-auto bg-slate-900 rounded-[42px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between flex-shrink-0 relative">
+              <div className="w-[360px] mx-auto bg-slate-900 rounded-[44px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between flex-shrink-0 relative">
+                {/* Smartphone Notch */}
                 <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-950 rounded-full z-30 flex items-center justify-end px-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-950 border border-indigo-500/30"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></div>
                 </div>
 
-                <div className="w-full h-[630px] bg-slate-100 rounded-[32px] overflow-hidden flex flex-col pt-6 text-slate-800 relative font-sans shadow-inner">
+                <div className="w-full h-[640px] bg-slate-100 rounded-[34px] overflow-hidden flex flex-col pt-6 text-slate-800 relative font-sans shadow-inner">
+                  
+                  {/* PWA Top Header */}
                   <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
                     <div>
-                      <h3 className="text-xs font-bold leading-tight">Kas Warga PWA</h3>
-                      <p className="text-[9px] text-emerald-400 font-semibold">Portal Warga RT 05</p>
+                      <h3 className="text-xs font-black tracking-wide leading-tight">KAS WARGA PWA</h3>
+                      <p className="text-[9px] text-emerald-400 font-semibold">Portal Warga Blok A-01</p>
                     </div>
-                    <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs">BS</div>
+                    <div className="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-xs">AS</div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs">
-                    <h3 className="font-bold text-slate-800">Tagihan & Iuran Saya</h3>
-                    <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl space-y-2">
-                      <p className="text-xs font-bold text-amber-950">Iuran Kebersihan & Security</p>
-                      <p className="text-sm font-black text-slate-900">Rp 75.000</p>
-                      <button onClick={() => showToast('Upload Resi')} className="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl">Upload Resi</button>
+                  {/* PWA Content Area */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+                    
+                    {/* Warga Balance Card */}
+                    <div className="bg-gradient-to-br from-emerald-600 to-teal-800 text-white p-4 rounded-2xl shadow-lg space-y-2">
+                      <p className="text-[10px] text-emerald-100 font-medium">Tagihan Bulan Ini (Okt 2026)</p>
+                      <p className="text-2xl font-black">Rp 100.000</p>
+                      <div className="flex justify-between items-center text-[10px] pt-1 border-t border-emerald-500/50">
+                        <span>Status: <strong className="text-amber-300">Belum Lunas</strong></span>
+                        <span className="bg-white/20 px-2 py-0.5 rounded text-white">Jatuh Tembak: 25 Okt</span>
+                      </div>
                     </div>
+
+                    {/* Pay Button / Upload Resi */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+                      <h4 className="font-bold text-slate-800 text-xs">Bayar Tagihan Iuran</h4>
+                      <p className="text-[11px] text-slate-500">Silakan transfer ke Rek. Mandiri <strong>133-000-888-99</strong> a/n Kas RT 05</p>
+                      <button onClick={() => showToast('Bukti Transfer Terkirim! Menunggu Verifikasi Bendahara.')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-center shadow">
+                        Upload Bukti Transfer / Resi
+                      </button>
+                    </div>
+
+                    {/* Transparansi Kas RT */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                      <div className="flex justify-between items-center border-b pb-1.5">
+                        <h4 className="font-bold text-slate-800 text-xs">Transparansi Kas RT 05</h4>
+                        <span className="text-[10px] text-emerald-600 font-bold">Terbuka</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500">Total Kas Terkumpul</span>
+                        <span className="font-black text-slate-800">Rp {currentBalance.toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+
+                    {/* Pengumuman RT Terkini */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-1.5">
+                      <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded">Pengumuman RT</span>
+                      <h4 className="font-bold text-slate-800 text-xs">Kerja Bakti Selokan Minggu Ini</h4>
+                      <p className="text-[10px] text-slate-500">Kerja bakti pembersihan selokan akan diadakan pada Minggu 25 Oktober pukul 07.00 WIB.</p>
+                    </div>
+
                   </div>
 
-                  <div className="h-14 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[10px]">
-                    <button onClick={() => setPwaPage('beranda')} className="flex flex-col items-center gap-0.5"><i data-lucide="home" className="w-4 h-4"></i> Beranda</button>
-                    <button onClick={() => setPwaPage('tagihan')} className="flex flex-col items-center gap-0.5 text-emerald-600 font-bold"><i data-lucide="file-text" className="w-4 h-4"></i> Tagihan</button>
-                    <button onClick={() => showToast('Profil')} className="flex flex-col items-center gap-0.5"><i data-lucide="user" className="w-4 h-4"></i> Profil</button>
+                  {/* PWA Bottom Navigation */}
+                  <div className="h-14 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[10px] font-bold">
+                    <button className="flex flex-col items-center gap-0.5 text-emerald-600">
+                      <i data-lucide="home" className="w-4 h-4"></i> Beranda
+                    </button>
+                    <button onClick={() => showToast('Halaman Tagihan')} className="flex flex-col items-center gap-0.5 hover:text-slate-700">
+                      <i data-lucide="receipt" className="w-4 h-4"></i> Tagihan
+                    </button>
+                    <button onClick={() => showToast('Halaman Laporan Transparan')} className="flex flex-col items-center gap-0.5 hover:text-slate-700">
+                      <i data-lucide="pie-chart" className="w-4 h-4"></i> Kas RT
+                    </button>
+                    <button onClick={() => showToast('Halaman Profil Warga')} className="flex flex-col items-center gap-0.5 hover:text-slate-700">
+                      <i data-lucide="user" className="w-4 h-4"></i> Akun
+                    </button>
                   </div>
+
                 </div>
               </div>
             )}
 
           </div>
 
-          {/* Modal Pop-up: Tambah Jenis Iuran */}
-          {showAddIuranModal && (
+          {/* ALL INTERACTIVE MODALS */}
+          {/* Modal 1: Tambah Warga / Rumah */}
+          {modalType === 'addHouse' && (
             <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border">
                 <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
-                  <h3 className="font-bold text-sm">Buat / Tambah Jenis Iuran Baru</h3>
-                  <button onClick={() => setShowAddIuranModal(false)} className="text-slate-400 hover:text-white">
-                    <i data-lucide="x" className="w-5 h-5"></i>
-                  </button>
+                  <h3 className="font-bold text-xs sm:text-sm">Tambah Data Rumah & Warga Baru</h3>
+                  <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-                
-                <div className="p-5 space-y-3.5 text-xs">
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Nama Jenis Iuran</label>
-                    <input type="text" placeholder="Contoh: Sumbangan Duka Cita / PHBN" className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500" />
+                <form onSubmit={handleAddHouse} className="p-4 space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700">Blok & Nomor Rumah</label>
+                    <input type="text" required placeholder="Contoh: A-05" value={newHouse.block} onChange={e=>setNewHouse({...newHouse, block: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
                   </div>
+                  <div>
+                    <label className="font-bold text-slate-700">Nama Pemilik / Kepala Keluarga</label>
+                    <input type="text" required placeholder="Nama Lengkap" value={newHouse.owner} onChange={e=>setNewHouse({...newHouse, owner: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700">No. WhatsApp Active</label>
+                    <input type="text" required placeholder="081234567890" value={newHouse.phone} onChange={e=>setNewHouse({...newHouse, phone: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold text-slate-700">Status Hunian</label>
+                      <select value={newHouse.status} onChange={e=>setNewHouse({...newHouse, status: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1">
+                        <option value="Tetap">Tetap</option>
+                        <option value="Kontrak">Kontrak</option>
+                        <option value="Kosong">Kosong</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700">Jumlah Penghuni</label>
+                      <input type="number" value={newHouse.residents} onChange={e=>setNewHouse({...newHouse, residents: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1" />
+                    </div>
+                  </div>
+                  <div className="pt-2 flex gap-2">
+                    <button type="submit" className="flex-1 bg-emerald-600 text-white font-bold py-2 rounded-xl">Simpan Data Warga</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl">Batal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Sifat Iuran</label>
-                    <select className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500">
-                      <option>Rutin Bulanan</option>
-                      <option>Insidental / Khusus</option>
+          {/* Modal 2: Tambah Jenis Iuran */}
+          {modalType === 'addBilling' && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border">
+                <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs sm:text-sm">Tambah Tarif / Jenis Iuran Baru</h3>
+                  <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
+                </div>
+                <form onSubmit={handleAddBilling} className="p-4 space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700">Nama Iuran</label>
+                    <input type="text" required placeholder="Contoh: Kas Duka Cita Warga" value={newBilling.name} onChange={e=>setNewBilling({...newBilling, name: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="font-bold text-slate-700">Nominal Tagihan per Rumah (Rp)</label>
+                    <input type="number" required placeholder="50000" value={newBilling.amount} onChange={e=>setNewBilling({...newBilling, amount: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold text-slate-700">Sifat Iuran</label>
+                      <select value={newBilling.type} onChange={e=>setNewBilling({...newBilling, type: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1">
+                        <option value="Rutin Bulanan">Rutin Bulanan</option>
+                        <option value="Insidental">Insidental</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700">Target Warga</label>
+                      <select value={newBilling.target} onChange={e=>setNewBilling({...newBilling, target: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1">
+                        <option value="Semua Warga">Semua Warga</option>
+                        <option value="Warga Tetap">Warga Tetap Sahaja</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="pt-2 flex gap-2">
+                    <button type="submit" className="flex-1 bg-emerald-600 text-white font-bold py-2 rounded-xl">Publikasikan Iuran</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl">Batal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Modal 3: Catat Mutasi Kas */}
+          {modalType === 'addTransaction' && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border">
+                <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs sm:text-sm">Catat Mutasi Transaksi Kas Baru</h3>
+                  <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
+                </div>
+                <form onSubmit={handleAddTrx} className="p-4 space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-slate-700">Jenis Transaksi</label>
+                    <select value={newTrx.type} onChange={e=>setNewTrx({...newTrx, type: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 font-bold">
+                      <option value="Pemasukan">Pemasukan (+ Kas)</option>
+                      <option value="Pengeluaran">Pengeluaran (- Kas)</option>
                     </select>
                   </div>
-
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Nominal Default (Rp)</label>
-                    <input type="number" placeholder="50000" className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500" />
+                  <div>
+                    <label className="font-bold text-slate-700">Kategori Pos</label>
+                    <input type="text" required placeholder="Contoh: Kebersihan / Keamanan / Donasi" value={newTrx.category} onChange={e=>setNewTrx({...newTrx, category: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
                   </div>
-
-                  <div className="flex gap-2 pt-2">
-                    <button 
-                      onClick={() => {
-                        setShowAddIuranModal(false);
-                        showToast('Jenis Iuran Baru Berhasil Ditambahkan!');
-                      }} 
-                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl">
-                      Simpan Jenis Iuran
-                    </button>
-                    <button 
-                      onClick={() => setShowAddIuranModal(false)} 
-                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-xl">
-                      Batal
-                    </button>
+                  <div>
+                    <label className="font-bold text-slate-700">Uraian / Keterangan</label>
+                    <input type="text" required placeholder="Rincian keterangan transaksi..." value={newTrx.description} onChange={e=>setNewTrx({...newTrx, description: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
                   </div>
+                  <div>
+                    <label className="font-bold text-slate-700">Nominal Transaksi (Rp)</label>
+                    <input type="number" required placeholder="100000" value={newTrx.amount} onChange={e=>setNewTrx({...newTrx, amount: e.target.value})} className="w-full bg-slate-50 border p-2 rounded-xl mt-1 focus:outline-emerald-500" />
+                  </div>
+                  <div className="pt-2 flex gap-2">
+                    <button type="submit" className="flex-1 bg-emerald-600 text-white font-bold py-2 rounded-xl">Simpan Transaksi</button>
+                    <button type="button" onClick={() => setModalType(null)} className="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl">Batal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Modal 4: Lihat Bukti Resi */}
+          {modalType === 'viewProof' && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white text-slate-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl border">
+                <div className="p-3 bg-slate-900 text-white flex justify-between items-center">
+                  <h3 className="font-bold text-xs">Pratinjau Bukti Transfer Resi</h3>
+                  <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-white"><i data-lucide="x" className="w-5 h-5"></i></button>
+                </div>
+                <div className="p-4 flex flex-col items-center space-y-3">
+                  <img src={selectedProof} alt="Bukti Resi" className="rounded-xl border max-h-80 object-cover" />
+                  <button onClick={() => setModalType(null)} className="w-full bg-slate-900 text-white font-bold py-2 rounded-xl text-xs">Tutup Pratinjau</button>
                 </div>
               </div>
             </div>
