@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kas Warga — Interactive Full Menu UI/UX Prototype</title>
+  <title>Kas Warga — Equal Features UI/UX Prototype</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -43,12 +43,12 @@
     const { useState, useEffect } = React;
 
     function App() {
-      // Navigation States
       const [viewMode, setViewMode] = useState('both'); // 'both' | 'desktop' | 'pwa'
-      const [adminPage, setAdminPage] = useState('dashboard'); // State untuk Halaman Admin
-      const [pwaPage, setPwaPage] = useState('beranda'); // State untuk Halaman PWA Warga
+      const [adminPage, setAdminPage] = useState('billing'); // Default ke halaman billing
+      const [pwaPage, setPwaPage] = useState('tagihan'); // Default ke halaman tagihan
       
       const [selectedProof, setSelectedProof] = useState(null);
+      const [showAddIuranModal, setShowAddIuranModal] = useState(false);
       const [toast, setToast] = useState(null);
 
       useEffect(() => {
@@ -73,14 +73,14 @@
             </div>
           )}
 
-          {/* Top Control Switcher Bar */}
+          {/* Top Control Bar */}
           <header className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-20 flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="bg-emerald-500 text-slate-950 font-black rounded-lg px-2.5 py-1 text-xs tracking-wider">
                 KAS WARGA
               </div>
               <span className="text-xs font-semibold text-slate-400 hidden sm:inline">
-                Full Interactive Menu Prototype — Klik Menu Mana Saja!
+                Full Sync Features — Pengaturan Iuran & Tagihan (Admin & PWA)
               </span>
             </div>
 
@@ -94,7 +94,7 @@
               <button 
                 onClick={() => setViewMode('both')} 
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition ${viewMode === 'both' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>
-                Split View
+                Split Dual View
               </button>
               <button 
                 onClick={() => setViewMode('pwa')} 
@@ -113,7 +113,7 @@
             {(viewMode === 'both' || viewMode === 'desktop') && (
               <div className="flex-1 bg-slate-100 text-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-slate-800">
                 
-                {/* Simulated URL Bar */}
+                {/* Browser URL Simulation Bar */}
                 <div className="h-8 bg-slate-200 border-b border-slate-300 flex items-center px-4 gap-2 flex-shrink-0">
                   <div className="flex gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-rose-500"></div>
@@ -129,7 +129,7 @@
 
                 <div className="flex-1 flex overflow-hidden">
                   
-                  {/* ADMIN SIDEBAR MENU (ALL CLICKABLE) */}
+                  {/* Sidebar Admin */}
                   <aside className="w-60 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 text-xs flex-shrink-0">
                     <div className="p-4 border-b border-slate-800 flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-sm">RT</div>
@@ -140,78 +140,23 @@
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-3 space-y-4">
-                      
-                      {/* Main Navigation */}
                       <div>
                         <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Utama</p>
-                        <button 
-                          onClick={() => setAdminPage('dashboard')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'dashboard' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                        <button onClick={() => setAdminPage('dashboard')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'dashboard' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                           <i data-lucide="layout-dashboard" className="w-4 h-4"></i> Dashboard
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('residents')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'residents' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="users" className="w-4 h-4"></i> Data Warga & Rumah
                         </button>
                       </div>
 
-                      {/* Financial Navigation */}
                       <div>
                         <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Keuangan & Kas</p>
-                        <button 
-                          onClick={() => setAdminPage('payments')} 
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'payments' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                        <button onClick={() => setAdminPage('billing')} className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'billing' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                          <i data-lucide="receipt" className="w-4 h-4"></i> Tagihan & Iuran
+                        </button>
+                        <button onClick={() => setAdminPage('payments')} className={`w-full flex items-center justify-between px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'payments' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                           <span className="flex items-center gap-2.5"><i data-lucide="credit-card" className="w-4 h-4"></i> Verifikasi</span>
                           <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold">2</span>
                         </button>
-                        <button 
-                          onClick={() => setAdminPage('finance')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'finance' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="file-text" className="w-4 h-4"></i> Buku Kas & Transaksi
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('billing')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'billing' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="receipt" className="w-4 h-4"></i> Tagihan & Iuran
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('reports')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'reports' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="file-spreadsheet" className="w-4 h-4"></i> Laporan & Tutup Buku
-                        </button>
                       </div>
-
-                      {/* Communication & System Navigation */}
-                      <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-2 mb-1">Komunikasi & Sistem</p>
-                        <button 
-                          onClick={() => setAdminPage('announcements')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'announcements' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="megaphone" className="w-4 h-4"></i> Pengumuman & LPJ
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('whatsapp')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'whatsapp' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="message-square" className="w-4 h-4"></i> Integrasi WhatsApp
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('registrations')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'registrations' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="user-plus" className="w-4 h-4"></i> Pendaftaran Warga
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('audit')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'audit' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="shield" className="w-4 h-4"></i> Audit Log
-                        </button>
-                        <button 
-                          onClick={() => setAdminPage('license')} 
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-semibold transition text-left ${adminPage === 'license' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                          <i data-lucide="check-circle-2" className="w-4 h-4"></i> Status Lisensi
-                        </button>
-                      </div>
-
                     </div>
 
                     <div className="p-3 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-400">
@@ -220,415 +165,150 @@
                     </div>
                   </aside>
 
-                  {/* ADMIN DYNAMIC CONTENT VIEW */}
+                  {/* ADMIN MAIN CONTENT */}
                   <main className="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
                     
-                    {/* Top Search Bar */}
+                    {/* Header Bar */}
                     <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0">
                       <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl w-72 text-xs">
                         <i data-lucide="search" className="w-4 h-4 text-slate-400"></i>
-                        <input type="text" placeholder="Cari data di halaman ini..." className="bg-transparent focus:outline-none w-full" />
+                        <input type="text" placeholder="Cari jenis iuran, warga..." className="bg-transparent focus:outline-none w-full" />
                       </div>
-                      <div className="flex items-center gap-3 text-xs">
-                        <button onClick={() => showToast('Notifikasi dibuka')} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl relative text-slate-600">
-                          <i data-lucide="bell" className="w-4 h-4"></i>
-                          <span className="w-2 h-2 bg-rose-500 rounded-full absolute top-1 right-1"></span>
-                        </button>
-                        <div className="h-6 w-px bg-slate-200"></div>
-                        <span className="font-bold text-slate-700">Portal Admin RT 05</span>
-                      </div>
+                      <span className="font-bold text-xs text-slate-700">Portal Admin RT 05</span>
                     </div>
 
-                    {/* DYNAMIC PAGES RENDERER */}
+                    {/* DYNAMIC PAGE ADMIN BILLING */}
                     <div className="p-6 space-y-6">
                       
-                      {/* PAGE 1: DASHBOARD */}
-                      {adminPage === 'dashboard' && (
+                      {/* PAGE: BILLING & TAGIHAN ADMIN */}
+                      {adminPage === 'billing' && (
                         <div className="space-y-6">
-                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                          
+                          {/* Header & Quick Action Buttons */}
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
-                              <h1 className="text-xl font-bold text-slate-800">Dashboard Utama Keuangan</h1>
-                              <p className="text-xs text-slate-500">Ringkasan arus kas & status verifikasi real-time.</p>
+                              <h1 className="text-xl font-bold text-slate-800">Pengaturan Iuran & Tagihan</h1>
+                              <p className="text-xs text-slate-500">Kelola jenis iuran, buat tarif baru, dan terbitkan tagihan warga.</p>
                             </div>
-                            <div className="flex gap-2 text-xs">
-                              <button onClick={() => showToast('Form Catat Kas dibuka')} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
-                                <i data-lucide="plus" className="w-4 h-4"></i> Catat Kas
+                            
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => setShowAddIuranModal(true)} 
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                                <i data-lucide="plus" className="w-4 h-4"></i> Tambah Jenis Iuran
                               </button>
-                              <button onClick={() => showToast('Export Laporan diproses')} className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
-                                <i data-lucide="download" className="w-4 h-4"></i> Export Laporan
+                              <button 
+                                onClick={() => showToast('Tagihan Bulanan Oktober Berhasil Di-generate!')} 
+                                className="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                                <i data-lucide="zap" className="w-4 h-4"></i> Generate Tagihan Bulanan
                               </button>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-                              <p className="text-slate-500 font-medium">Total Saldo Kas RT</p>
-                              <p className="text-xl font-black text-slate-800">Rp 24.850.000</p>
-                              <span className="inline-block text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">🟢 Bank & Cash Synchronized</span>
+                          {/* Form Terbitkan Tagihan Langsung */}
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 text-xs">
+                            <h3 className="font-bold text-slate-800 text-sm border-b pb-2 flex items-center gap-2">
+                              <i data-lucide="file-plus" className="w-4 h-4 text-emerald-600"></i> Form Terbitkan Tagihan Baru
+                            </h3>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="space-y-1">
+                                <label className="font-bold text-slate-700">Pilih Jenis Iuran / Tarif</label>
+                                <select className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-medium text-slate-800 focus:outline-none focus:border-emerald-500">
+                                  <option>Iuran Keamanan & Kebersihan (Rp 75.000)</option>
+                                  <option>Kas Rutin RT (Rp 50.000)</option>
+                                  <option>Sumbangan PHBN 17 Agustus (Insidental)</option>
+                                </select>
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="font-bold text-slate-700">Periode Tagihan</label>
+                                <input type="month" defaultValue="2026-10" className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-medium text-slate-800 focus:outline-none focus:border-emerald-500" />
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="font-bold text-slate-700">Target Warga</label>
+                                <select className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-medium text-slate-800 focus:outline-none focus:border-emerald-500">
+                                  <option>Seluruh Warga Aktif (78 Rumah)</option>
+                                  <option>Blok A Saja</option>
+                                  <option>Blok B Saja</option>
+                                </select>
+                              </div>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-                              <p className="text-slate-500 font-medium">Pemasukan (Bulan Ini)</p>
-                              <p className="text-xl font-black text-emerald-600">Rp 3.200.000</p>
-                              <span className="inline-block text-[10px] text-emerald-600 font-bold">↗️ +12% MoM</span>
-                            </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-                              <p className="text-slate-500 font-medium">Pengeluaran (Bulan Ini)</p>
-                              <p className="text-xl font-black text-rose-600">Rp 1.150.000</p>
-                              <span className="inline-block text-[10px] text-slate-500 font-bold">3 Kategori Pengeluaran</span>
-                            </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1">
-                              <p className="text-slate-500 font-medium">Verifikasi Pembayaran</p>
-                              <p className="text-xl font-black text-amber-600">2 Antrean</p>
-                              <span className="inline-block text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">⚠️ Perlu Tindakan</span>
+
+                            <div className="flex justify-between items-center pt-2 border-t">
+                              <p className="text-[11px] text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200">
+                                ⚠️ Mencegah tagihan ganda untuk periode & jenis yang sama secara otomatis.
+                              </p>
+                              <button 
+                                onClick={() => showToast('Tagihan berhasil diterbitkan ke seluruh warga!')} 
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm">
+                                🚀 Terbitkan Tagihan Sekarang
+                              </button>
                             </div>
                           </div>
-                        </div>
-                      )}
 
-                      {/* PAGE 2: DATA WARGA */}
-                      {adminPage === 'residents' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h1 className="text-xl font-bold text-slate-800">Data Warga & Rumah</h1>
-                              <p className="text-xs text-slate-500">Kelola basis data seluruh anggota RT 05.</p>
+                          {/* List Jenis Iuran Terdaftar */}
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div className="flex justify-between items-center border-b pb-3">
+                              <h3 className="font-bold text-slate-800 text-sm">Daftar Jenis Iuran Terdaftar:</h3>
+                              <span className="text-xs text-slate-500 font-medium">Total: 2 Jenis Iuran Aktif</span>
                             </div>
-                            <button onClick={() => showToast('Form Warga Baru dibuka')} className="bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5">
-                              <i data-lucide="plus" className="w-4 h-4"></i> + Tambah Warga
-                            </button>
-                          </div>
 
-                          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                            <table className="w-full text-left">
-                              <thead className="bg-slate-100 text-slate-500 font-semibold border-b border-slate-200">
-                                <tr>
-                                  <th className="p-3 px-4">Nama Warga</th>
-                                  <th className="p-3 px-4">Nomor Rumah</th>
-                                  <th className="p-3 px-4">Status HP</th>
-                                  <th className="p-3 px-4">Status Akun</th>
-                                  <th className="p-3 px-4 text-center">Aksi</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-slate-100">
-                                <tr>
-                                  <td className="p-3 px-4 font-bold">Budi Santoso</td>
-                                  <td className="p-3 px-4">Blok A1 No. 02</td>
-                                  <td className="p-3 px-4">0812-3456-7890</td>
-                                  <td className="p-3 px-4"><span className="bg-emerald-100 text-emerald-800 font-bold text-[10px] px-2 py-0.5 rounded-full">🟢 Aktif</span></td>
-                                  <td className="p-3 px-4 text-center">
-                                    <button onClick={() => showToast('Edit Warga Budi Santoso')} className="text-emerald-600 font-bold hover:underline">Edit</button>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="p-3 px-4 font-bold">Siti Rahma</td>
-                                  <td className="p-3 px-4">Blok B3 No. 10</td>
-                                  <td className="p-3 px-4">0819-8765-4321</td>
-                                  <td className="p-3 px-4"><span className="bg-emerald-100 text-emerald-800 font-bold text-[10px] px-2 py-0.5 rounded-full">🟢 Aktif</span></td>
-                                  <td className="p-3 px-4 text-center">
-                                    <button onClick={() => showToast('Edit Warga Siti Rahma')} className="text-emerald-600 font-bold hover:underline">Edit</button>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* PAGE 3: VERIFIKASI PEMBAYARAN */}
-                      {adminPage === 'payments' && (
-                        <div className="space-y-4">
-                          <div>
-                            <h1 className="text-xl font-bold text-slate-800">Verifikasi Pembayaran Warga</h1>
-                            <p className="text-xs text-slate-500">Periksa bukti transfer dan konfirmasi pembayaran tagihan.</p>
-                          </div>
-
-                          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden text-xs">
-                            <table className="w-full text-left">
-                              <thead className="bg-slate-100 text-slate-500 font-semibold border-b border-slate-200">
-                                <tr>
-                                  <th className="p-3 px-4">Warga & Rumah</th>
-                                  <th className="p-3 px-4">Jenis Iuran</th>
-                                  <th className="p-3 px-4">Nominal</th>
-                                  <th className="p-3 px-4">Resi</th>
-                                  <th className="p-3 px-4 text-center">Aksi</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-slate-100">
-                                <tr>
-                                  <td className="p-3 px-4 font-bold">Budi Santoso (A1/02)</td>
-                                  <td className="p-3 px-4">Iuran Kebersihan</td>
-                                  <td className="p-3 px-4 font-extrabold text-slate-900">Rp 75.000</td>
-                                  <td className="p-3 px-4">
-                                    <button onClick={() => setSelectedProof({ name: 'Budi Santoso', house: 'A1/02', amount: 'Rp 75.000', type: 'Iuran Kebersihan' })} className="text-emerald-600 font-bold underline">
-                                      Preview Resi 🖼️
+                            <div className="space-y-3">
+                              {/* Item 1 */}
+                              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                                <div>
+                                  <p className="font-bold text-slate-800 text-sm">Iuran Keamanan & Kebersihan</p>
+                                  <p className="text-[11px] text-slate-500">Tipe: Rutin Bulanan | Target: Seluruh Warga RT</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <span className="font-extrabold text-slate-900 text-sm">Rp 75.000 / Bulan</span>
+                                  <div className="flex gap-1">
+                                    <button onClick={() => showToast('Form Edit Jenis Iuran')} className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-[11px]">
+                                      Edit
                                     </button>
-                                  </td>
-                                  <td className="p-3 px-4 text-center">
-                                    <button onClick={() => showToast('Pembayaran Disetujui')} className="bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-lg">Setujui</button>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* PAGE 4: BUKU KAS & TRANSAKSI */}
-                      {adminPage === 'finance' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h1 className="text-xl font-bold text-slate-800">Buku Kas & Transaksi</h1>
-                              <p className="text-xs text-slate-500">Pencatatan resmi seluruh lalu lintas kas RT.</p>
-                            </div>
-                            <button onClick={() => showToast('Tambah Pemasukan / Pengeluaran')} className="bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl">
-                              + Catat Transaksi Baru
-                            </button>
-                          </div>
-
-                          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-xs space-y-2">
-                            <div className="flex justify-between border-b pb-2 font-bold text-slate-700">
-                              <span>Tanggal</span>
-                              <span>Kategori</span>
-                              <span>Nominal</span>
-                              <span>Jenis</span>
-                            </div>
-                            <div className="flex justify-between py-1 border-b">
-                              <span>21 Oct 2026</span>
-                              <span>Pembayaran Iuran Warga</span>
-                              <span className="font-bold text-emerald-600">+Rp 75.000</span>
-                              <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold text-[10px]">Pemasukan</span>
-                            </div>
-                            <div className="flex justify-between py-1">
-                              <span>20 Oct 2026</span>
-                              <span>Pembelian Alat Kebersihan</span>
-                              <span className="font-bold text-rose-600">-Rp 150.000</span>
-                              <span className="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full font-bold text-[10px]">Pengeluaran</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      					  
-					  {/* PAGE 5: PENGATURAN IURAN & TAGIHAN (VERSI LENGKAP & LURUS) */}
-					  {adminPage === 'billing' && (
-						  <div className="space-y-6">
-							
-							{/* Header & Akses Cepat Tombol Tambah */}
-							<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-							  <div>
-								<h1 className="text-xl font-bold text-slate-800">Pengaturan Iuran & Tagihan</h1>
-								<p className="text-xs text-slate-500">Kelola jenis iuran, tarif bulanan warga, dan terbitkan tagihan.</p>
-							  </div>
-							  
-							  {/* Tombol aksi utama yang ditambahkan */}
-							  <div className="flex gap-2">
-								<button 
-								  onClick={() => showToast('Form Tambah Jenis Iuran Baru Dibuka')} 
-								  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
-								  <i data-lucide="plus" className="w-4 h-4"></i> Tambah Jenis Iuran
-								</button>
-								<button 
-								  onClick={() => showToast('Tagihan Bulanan Berhasil Di-generate!')} 
-								  className="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
-								  <i data-lucide="zap" className="w-4 h-4"></i> Generate Tagihan Bulanan
-								</button>
-							  </div>
-							</div>
-
-							{/* Kartu Daftar Jenis Iuran Terdaftar */}
-							<div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-							  <div className="flex justify-between items-center border-b pb-3">
-								<h3 className="font-bold text-slate-800 text-sm">Jenis Iuran Terdaftar:</h3>
-								<span className="text-xs text-slate-500 font-medium">Total: 2 Jenis Iuran Aktif</span>
-							  </div>
-
-							  <div className="space-y-3">
-								
-								{/* Item 1 */}
-								<div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition text-xs">
-								  <div>
-									<p className="font-bold text-slate-800 text-sm">Iuran Keamanan & Kebersihan</p>
-									<p className="text-[11px] text-slate-500">Tipe: Rutin Bulanan | Sasaran: Seluruh Warga RT</p>
-								  </div>
-								  <div className="flex items-center gap-4">
-									<span className="font-extrabold text-slate-900 text-sm">Rp 75.000 / Bulan</span>
-									<div className="flex gap-1">
-									  <button 
-										onClick={() => showToast('Edit Iuran Keamanan & Kebersihan')} 
-										className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-[11px]">
-										Edit
-									  </button>
-									  <button 
-										onClick={() => showToast('Iuran dinonaktifkan')} 
-										className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg text-[11px]">
-										Nonaktifkan
-									  </button>
-									</div>
-								  </div>
-								</div>
-
-								{/* Item 2 */}
-								<div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition text-xs">
-								  <div>
-									<p className="font-bold text-slate-800 text-sm">Kas Rutin RT</p>
-									<p className="text-[11px] text-slate-500">Tipe: Rutin Bulanan | Sasaran: Seluruh Warga RT</p>
-								  </div>
-								  <div className="flex items-center gap-4">
-									<span className="font-extrabold text-slate-900 text-sm">Rp 50.000 / Bulan</span>
-									<div className="flex gap-1">
-									  <button 
-										onClick={() => showToast('Edit Kas Rutin RT')} 
-										className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-[11px]">
-										Edit
-									  </button>
-									  <button 
-										onClick={() => showToast('Iuran dinonaktifkan')} 
-										className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg text-[11px]">
-										Nonaktifkan
-									  </button>
-									</div>
-								  </div>
-								</div>
-
-							  </div>
-							</div>
-
-						  </div>
-						)}
-
-                      {/* PAGE 6: LAPORAN */}
-                      {adminPage === 'reports' && (
-                        <div className="space-y-4">
-                          <div>
-                            <h1 className="text-xl font-bold text-slate-800">Laporan Keuangan & Tutup Buku</h1>
-                            <p className="text-xs text-slate-500">Rekapitulasi laporan bulanan dan tahunan.</p>
-                          </div>
-
-                          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-xs space-y-4">
-                            <h3 className="font-bold text-slate-800">Periode Oktober 2026</h3>
-                            <div className="grid grid-cols-3 gap-3">
-                              <div className="bg-slate-50 p-3 rounded-lg border">
-                                <span className="text-slate-500">Total Pemasukan</span>
-                                <p className="font-black text-emerald-600 text-sm">Rp 3.200.000</p>
+                                    <button onClick={() => showToast('Iuran dinonaktifkan')} className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg text-[11px]">
+                                      Nonaktifkan
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="bg-slate-50 p-3 rounded-lg border">
-                                <span className="text-slate-500">Total Pengeluaran</span>
-                                <p className="font-black text-rose-600 text-sm">Rp 1.150.000</p>
-                              </div>
-                              <div className="bg-slate-50 p-3 rounded-lg border">
-                                <span className="text-slate-500">Saldo Akhir</span>
-                                <p className="font-black text-slate-800 text-sm">Rp 24.850.000</p>
+
+                              {/* Item 2 */}
+                              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                                <div>
+                                  <p className="font-bold text-slate-800 text-sm">Kas Rutin RT 05</p>
+                                  <p className="text-[11px] text-slate-500">Tipe: Rutin Bulanan | Target: Seluruh Warga RT</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <span className="font-extrabold text-slate-900 text-sm">Rp 50.000 / Bulan</span>
+                                  <div className="flex gap-1">
+                                    <button onClick={() => showToast('Form Edit Jenis Iuran')} className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-[11px]">
+                                      Edit
+                                    </button>
+                                    <button onClick={() => showToast('Iuran dinonaktifkan')} className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg text-[11px]">
+                                      Nonaktifkan
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                            <div className="flex gap-2">
-                              <button onClick={() => showToast('PDF Berhasil Diunduh')} className="bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg">Cetak PDF</button>
-                              <button onClick={() => showToast('Excel Berhasil Diunduh')} className="bg-slate-800 text-white font-bold px-3 py-2 rounded-lg">Export Excel</button>
-                            </div>
                           </div>
+
                         </div>
                       )}
 
-                      {/* PAGE 7: PENGUMUMAN & LPJ */}
-                      {adminPage === 'announcements' && (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h1 className="text-xl font-bold text-slate-800">Pengumuman & LPJ</h1>
-                              <p className="text-xs text-slate-500">Publikasi pengumuman dan laporan pertanggungjawaban warga.</p>
-                            </div>
-                            <button onClick={() => showToast('Form Pengumuman Baru')} className="bg-emerald-600 text-white font-bold text-xs px-3.5 py-2 rounded-xl">
-                              + Buat Pengumuman
-                            </button>
-                          </div>
-
-                          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-xs space-y-2">
-                            <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">Terbit</span>
-                            <h3 className="font-bold text-slate-800 text-sm">Kerja Bakti Lapangan & Got RT</h3>
-                            <p className="text-slate-600">Pelaksanaan Minggu pagi pukul 07:00 WIB. Dimohon partisipasi seluruh warga...</p>
-                          </div>
+                      {/* FALLBACK PAGES */}
+                      {adminPage === 'dashboard' && (
+                        <div className="bg-white p-5 rounded-xl border font-bold text-slate-700">
+                          Halaman Dashboard Admin. Klik menu "Tagihan & Iuran" di sidebar untuk melihat fitur iuran.
                         </div>
                       )}
 
-                      {/* PAGE 8: WHATSAPP */}
-                      {adminPage === 'whatsapp' && (
-                        <div className="space-y-4">
-                          <div>
-                            <h1 className="text-xl font-bold text-slate-800">Integrasi WhatsApp</h1>
-                            <p className="text-xs text-slate-500">Fitur berbagi pesan manual & otomatis ke grup WA warga.</p>
-                          </div>
-
-                          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-xs space-y-3">
-                            <p className="font-bold text-slate-800">Draft Pesan WhatsApp Laporan Keuangan:</p>
-                            <div className="bg-slate-100 p-3 rounded-lg font-mono text-[11px] text-slate-700">
-                              *LAPORAN KEUANGAN KAS RT 05 - OKTOBER 2026*<br/>
-                              Total Saldo: Rp 24.850.000<br/>
-                              Rincian lengkap: https://bogorvaley.my.id/finance
-                            </div>
-                            <button onClick={() => showToast('Teks Laporan Tersalin ke Clipboard!')} className="bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg">
-                              📋 Salin Pesan WA
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* PAGE 9: PENDAFTARAN WARGA */}
-                      {adminPage === 'registrations' && (
-                        <div className="space-y-4">
-                          <div>
-                            <h1 className="text-xl font-bold text-slate-800">Permohonan Pendaftaran Warga</h1>
-                            <p className="text-xs text-slate-500">Verifikasi calon anggota baru yang mendaftar via link.</p>
-                          </div>
-
-                          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-xs flex justify-between items-center">
-                            <div>
-                              <p className="font-bold text-slate-800">Ahmad Dahlan (Calon Warga - Blok C2/05)</p>
-                              <p className="text-slate-500">Mendaftar via Link RT pada 21 Oct 2026</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <button onClick={() => showToast('Pendaftaran Ahmad Dahlan Disetujui')} className="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg">Setujui</button>
-                              <button onClick={() => showToast('Pendaftaran Ditolak')} className="bg-rose-100 text-rose-700 font-bold px-3 py-1.5 rounded-lg">Tolak</button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* PAGE 10: AUDIT LOG */}
-                      {adminPage === 'audit' && (
-                        <div className="space-y-4">
-                          <div>
-                            <h1 className="text-xl font-bold text-slate-800">Audit Log Sistem</h1>
-                            <p className="text-xs text-slate-500">Rekam jejak seluruh aktivitas pengurus untuk transparansi.</p>
-                          </div>
-
-                          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-xs space-y-2 font-mono">
-                            <div className="border-b pb-1">
-                              <span className="text-slate-400">[21 Oct 2026 - 19:42 WIB]</span> <strong className="text-emerald-700">Pak Budi (Bendahara)</strong> menyetujui verifikasi pembayaran Budi Santoso (Rp 75.000).
-                            </div>
-                            <div className="border-b pb-1">
-                              <span className="text-slate-400">[20 Oct 2026 - 14:10 WIB]</span> <strong className="text-emerald-700">Pak RT</strong> menerbitkan pengumuman "Kerja Bakti Lapangan".
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* PAGE 11: LISENSI */}
-                      {adminPage === 'license' && (
-                        <div className="space-y-4">
-                          <div>
-                            <h1 className="text-xl font-bold text-slate-800">Status Lisensi Aplikasi</h1>
-                            <p className="text-xs text-slate-500">Manajemen kuota anggota dan masa aktif lisensi berbayar.</p>
-                          </div>
-
-                          <div className="bg-slate-900 text-white p-5 rounded-2xl space-y-3">
-                            <span className="bg-emerald-500/20 text-emerald-400 font-bold text-[10px] px-2 py-0.5 rounded-full">STATUS: AKTIF</span>
-                            <h3 className="text-lg font-bold">Lisensi RT 05 / RW 02</h3>
-                            <p className="text-xs text-slate-300">Kuota Terpakai: <strong>78 dari 100 Anggota Maksimal</strong></p>
-                            <p className="text-xs text-slate-400">Masa Berlaku s/d: <strong>31 Desember 2026 (71 Hari Lagi)</strong></p>
-                            <button onClick={() => showToast('Form Perpanjangan Lisensi')} className="bg-emerald-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">
-                              Input Kode Perpanjangan
-                            </button>
-                          </div>
+                      {adminPage === 'payments' && (
+                        <div className="bg-white p-5 rounded-xl border font-bold text-slate-700">
+                          Halaman Verifikasi Pembayaran Transfer Warga.
                         </div>
                       )}
 
@@ -646,15 +326,15 @@
             {(viewMode === 'both' || viewMode === 'pwa') && (
               <div className="w-[350px] mx-auto bg-slate-900 rounded-[42px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between flex-shrink-0 relative">
                 
-                {/* Notch */}
+                {/* Smartphone Notch */}
                 <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-950 rounded-full z-30 flex items-center justify-end px-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-indigo-950 border border-indigo-500/30"></div>
                 </div>
 
-                {/* Smartphone Screen Inner */}
+                {/* Screen Inner */}
                 <div className="w-full h-[630px] bg-slate-100 rounded-[32px] overflow-hidden flex flex-col pt-6 text-slate-800 relative font-sans shadow-inner">
                   
-                  {/* PWA App Bar */}
+                  {/* App Bar */}
                   <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-md bg-emerald-500 text-slate-950 font-black text-[10px] flex items-center justify-center">KW</div>
@@ -666,94 +346,97 @@
                     <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs">BS</div>
                   </div>
 
-                  {/* PWA DYNAMIC CONTENT AREA */}
+                  {/* DYNAMIC CONTENT PWA */}
                   <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5">
                     
-                    {/* PWA PAGE 1: BERANDA */}
-                    {pwaPage === 'beranda' && (
-                      <div className="space-y-3.5">
-                        <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-4 rounded-2xl shadow-md">
-                          <p className="text-[10px] text-emerald-200">Selamat Datang,</p>
-                          <h2 className="text-sm font-bold">Budi Santoso 👋</h2>
-                          <p className="text-[11px] opacity-90 mt-0.5">Rumah: Blok A1 No. 02</p>
-                        </div>
-
-                        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                          <span className="text-[10px] font-extrabold text-slate-400 uppercase">Transparansi Kas RT</span>
-                          <p className="text-lg font-black text-slate-900">Rp 24.850.000</p>
-                        </div>
-
-                        <div className="bg-amber-50 border border-amber-200/80 p-3.5 rounded-2xl space-y-2">
-                          <span className="text-xs font-extrabold text-amber-950">Tagihan Iuran Oktober</span>
-                          <p className="text-xs font-black text-slate-900">Rp 75.000</p>
-                          <button onClick={() => showToast('Upload Bukti Transfer')} className="w-full bg-emerald-600 text-white font-bold text-xs py-2 rounded-xl">
-                            Upload Bukti Transfer
+                    {/* PWA PAGE: TAGIHAN & IURAN WARGA (FULL SYNC FEATURES) */}
+                    {pwaPage === 'tagihan' && (
+                      <div className="space-y-3.5 text-xs">
+                        
+                        {/* Header Tagihan */}
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-bold text-slate-800 text-sm">Tagihan & Iuran Saya</h3>
+                          <button onClick={() => showToast('Form Pengajuan Keringanan')} className="text-[10px] bg-white border border-slate-300 text-slate-700 font-bold px-2 py-1 rounded-lg">
+                            + Ajukan Keringanan
                           </button>
                         </div>
-                      </div>
-                    )}
 
-                    {/* PWA PAGE 2: KEUANGAN */}
-                    {pwaPage === 'keuangan' && (
-                      <div className="space-y-3 text-xs">
-                        <h3 className="font-bold text-slate-800 text-sm">Transparansi Keuangan Kas</h3>
-                        <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                          <div className="flex justify-between border-b pb-1">
-                            <span className="text-slate-500">Total Pemasukan</span>
-                            <span className="font-bold text-emerald-600">+Rp 3.200.000</span>
+                        {/* Active Tagihan Card 1 */}
+                        <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl space-y-2 shadow-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-extrabold text-amber-950">Iuran Kebersihan & Security</span>
+                            <span className="text-[9px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-full">Belum Lunas</span>
                           </div>
-                          <div className="flex justify-between border-b pb-1">
-                            <span className="text-slate-500">Total Pengeluaran</span>
-                            <span className="font-bold text-rose-600">-Rp 1.150.000</span>
+                          <div className="flex justify-between items-baseline">
+                            <p className="text-sm font-black text-slate-900">Rp 75.000</p>
+                            <span className="text-[10px] text-slate-500">Jatuh Tempo: 31 Oct</span>
                           </div>
-                          <div className="flex justify-between font-bold pt-1">
-                            <span>Saldo Akhir Kas</span>
-                            <span className="text-slate-900">Rp 24.850.000</span>
+                          <button 
+                            onClick={() => showToast('Form Upload Resi Pembayaran Dibuka')}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
+                            <i data-lucide="upload" className="w-4 h-4"></i> Upload Resi Pembayaran
+                          </button>
+                        </div>
+
+                        {/* Rincian Tarif Iuran RT Resmi */}
+                        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Tarif Resmi Iuran RT 05</span>
+                          
+                          <div className="space-y-1.5 pt-1">
+                            <div className="flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
+                              <div>
+                                <p className="font-bold text-slate-800 text-[11px]">Iuran Kebersihan & Security</p>
+                                <p className="text-[9px] text-slate-400">Rutin Bulanan</p>
+                              </div>
+                              <span className="font-extrabold text-slate-900 text-xs">Rp 75.000</span>
+                            </div>
+
+                            <div className="flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
+                              <div>
+                                <p className="font-bold text-slate-800 text-[11px]">Kas Rutin RT 05</p>
+                                <p className="text-[9px] text-slate-400">Rutin Bulanan</p>
+                              </div>
+                              <span className="font-extrabold text-slate-900 text-xs">Rp 50.000</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
 
-                    {/* PWA PAGE 3: TAGIHAN */}
-                    {pwaPage === 'tagihan' && (
-                      <div className="space-y-3 text-xs">
-                        <h3 className="font-bold text-slate-800 text-sm">Daftar Tagihan Iuran</h3>
-                        <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-                          <div className="flex justify-between">
-                            <span className="font-bold">Iuran Kebersihan (Okt)</span>
-                            <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-full">Belum Bayar</span>
+                        {/* Riwayat Pembayaran Terakhir */}
+                        <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Riwayat Pembayaran Selesai</span>
+                          
+                          <div className="flex justify-between items-center text-[11px] pt-1">
+                            <div>
+                              <p className="font-bold text-slate-800">Tagihan September 2026</p>
+                              <p className="text-[9px] text-slate-400">Di-verifikasi 22 Sep 2026</p>
+                            </div>
+                            <span className="bg-emerald-100 text-emerald-800 font-bold text-[9px] px-2 py-0.5 rounded-full">Lunas ✅</span>
                           </div>
-                          <p className="font-black text-slate-900 text-sm">Rp 75.000</p>
                         </div>
+
                       </div>
                     )}
 
-                    {/* PWA PAGE 4: PROFIL */}
-                    {pwaPage === 'profil' && (
-                      <div className="space-y-3 text-xs">
-                        <h3 className="font-bold text-slate-800 text-sm">Profil Saya</h3>
-                        <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
-                          <p className="text-slate-500">Nama: <strong className="text-slate-800">Budi Santoso</strong></p>
-                          <p className="text-slate-500">No. Rumah: <strong className="text-slate-800">Blok A1 No. 02</strong></p>
-                          <p className="text-slate-500">No. HP: <strong className="text-slate-800">0812-3456-7890</strong></p>
+                    {/* FALLBACK PWA PAGES */}
+                    {pwaPage === 'beranda' && (
+                      <div className="space-y-3">
+                        <div className="bg-emerald-600 text-white p-3.5 rounded-xl font-bold">
+                          Beranda Warga. Klik menu "Tagihan" di bawah untuk melihat rincian iuran.
                         </div>
                       </div>
                     )}
 
                   </div>
 
-                  {/* PWA BOTTOM NAVIGATION (ALL CLICKABLE) */}
+                  {/* Bottom Navigation PWA */}
                   <div className="h-14 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[10px] font-medium">
                     <button onClick={() => setPwaPage('beranda')} className={`flex flex-col items-center gap-0.5 ${pwaPage === 'beranda' ? 'text-emerald-600 font-bold' : 'hover:text-slate-800'}`}>
                       <i data-lucide="home" className="w-4 h-4"></i> Beranda
                     </button>
-                    <button onClick={() => setPwaPage('keuangan')} className={`flex flex-col items-center gap-0.5 ${pwaPage === 'keuangan' ? 'text-emerald-600 font-bold' : 'hover:text-slate-800'}`}>
-                      <i data-lucide="history" className="w-4 h-4"></i> Keuangan
-                    </button>
                     <button onClick={() => setPwaPage('tagihan')} className={`flex flex-col items-center gap-0.5 ${pwaPage === 'tagihan' ? 'text-emerald-600 font-bold' : 'hover:text-slate-800'}`}>
                       <i data-lucide="file-text" className="w-4 h-4"></i> Tagihan
                     </button>
-                    <button onClick={() => setPwaPage('profil')} className={`flex flex-col items-center gap-0.5 ${pwaPage === 'profil' ? 'text-emerald-600 font-bold' : 'hover:text-slate-800'}`}>
+                    <button onClick={() => showToast('Menu Profil')} className="flex flex-col items-center gap-0.5 hover:text-slate-800">
                       <i data-lucide="user" className="w-4 h-4"></i> Profil
                     </button>
                   </div>
@@ -765,46 +448,49 @@
 
           </div>
 
-          {/* Modal Resi Verification */}
-          {selectedProof && (
+          {/* Modal Pop-up: Tambah Jenis Iuran Baru (Admin) */}
+          {showAddIuranModal && (
             <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-white text-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
                 <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
-                  <h3 className="font-bold text-sm">Verifikasi Bukti Transfer Warga</h3>
-                  <button onClick={() => setSelectedProof(null)} className="text-slate-400 hover:text-white">
+                  <h3 className="font-bold text-sm">Buat / Tambah Jenis Iuran Baru</h3>
+                  <button onClick={() => setShowAddIuranModal(false)} className="text-slate-400 hover:text-white">
                     <i data-lucide="x" className="w-5 h-5"></i>
                   </button>
                 </div>
                 
-                <div className="p-5 space-y-4 text-xs">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
-                    <p className="text-slate-500">Pengirim: <strong className="text-slate-800">{selectedProof.name} ({selectedProof.house})</strong></p>
-                    <p className="text-slate-500">Nominal: <strong className="text-emerald-600 font-black text-sm">{selectedProof.amount}</strong></p>
+                <div className="p-5 space-y-3.5 text-xs">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Nama Jenis Iuran</label>
+                    <input type="text" placeholder="Contoh: Sumbangan Duka Cita / PHBN" className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500" />
                   </div>
 
-                  <div className="bg-slate-100 rounded-xl p-4 border border-slate-300 text-center space-y-2">
-                    <div className="w-full h-40 bg-slate-200 rounded-lg flex flex-col items-center justify-center border border-dashed border-slate-400 text-slate-500">
-                      <i data-lucide="file-text" className="w-8 h-8 text-slate-400 mb-1"></i>
-                      <span className="font-bold text-slate-700">RESIBCA_21102026.JPG</span>
-                    </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Sifat Iuran</label>
+                    <select className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500">
+                      <option>Rutin Bulanan</option>
+                      <option>Insidental / Khusus</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Nominal Default (Rp)</label>
+                    <input type="number" placeholder="50000" className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:outline-none focus:border-emerald-500" />
                   </div>
 
                   <div className="flex gap-2 pt-2">
                     <button 
                       onClick={() => {
-                        setSelectedProof(null);
-                        showToast(`Pembayaran ${selectedProof.name} Disetujui!`);
+                        setShowAddIuranModal(false);
+                        showToast('Jenis Iuran Baru Berhasil Ditambahkan!');
                       }} 
                       className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl">
-                      Setujui
+                      Simpan Jenis Iuran
                     </button>
                     <button 
-                      onClick={() => {
-                        setSelectedProof(null);
-                        showToast(`Pembayaran Ditolak`);
-                      }} 
-                      className="bg-rose-100 text-rose-700 font-bold px-4 py-2.5 rounded-xl">
-                      Tolak
+                      onClick={() => setShowAddIuranModal(false)} 
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-xl">
+                      Batal
                     </button>
                   </div>
                 </div>
