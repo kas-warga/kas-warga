@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kas Warga — Aplikasi Management RT/RW Transparan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kas Warga — Aplikasi Manajemen RT/RW Transparan</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Custom Tailwind Configuration (Kas Warga Theme Colors) -->
+  <!-- Custom Tailwind Configuration -->
   <script>
     tailwind.config = {
       theme: {
@@ -20,8 +20,8 @@
               500: '#2563eb',
               600: '#1d4ed8',
               800: '#1e3a8a',
-              900: '#0f2355', // Deep Royal Blue khas Logo Kas Warga
-              blue: '#163988', // Navy Accent
+              900: '#0f2355',
+              blue: '#163988',
             },
             gold: {
               300: '#fde047',
@@ -35,6 +35,9 @@
     }
   </script>
 
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <!-- React 18 & ReactDOM CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -46,10 +49,19 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
     /* Custom Scrollbar Styling */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
     ::-webkit-scrollbar-track {
       background: #0f172a;
@@ -61,11 +73,14 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #475569;
     }
+    
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-400 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-400 selection:text-slate-950 min-h-screen flex flex-col">
 
-  <div id="root"></div>
+  <div id="root" class="min-h-screen flex flex-col w-full max-w-full overflow-x-hidden"></div>
 
   <script type="text/babel">
     const { useState, useEffect, useMemo } = React;
@@ -151,7 +166,7 @@
       // Role State: 'landing' | 'admin' | 'warga'
       const [roleMode, setRoleMode] = useState('landing');
       
-      // Admin Selected Page / Sub-Module
+      // Admin Selected Module ID (15 modules)
       const [activeAdminModule, setActiveAdminModule] = useState('dashboard');
       const [showModuleDrawer, setShowModuleDrawer] = useState(false);
 
@@ -332,7 +347,7 @@
       ];
 
       return (
-        <div className="min-h-screen flex flex-col bg-slate-950 font-sans">
+        <div className="min-h-screen flex flex-col bg-slate-950 font-sans w-full max-w-full overflow-x-hidden">
           
           {/* FLOATING TOAST NOTIFICATION */}
           {toast && (
@@ -343,31 +358,31 @@
           )}
 
           {/* TOP DEMO NAVBAR */}
-          <header className="h-14 bg-brand-900 border-b border-blue-900 flex items-center justify-between px-3 sm:px-6 z-40 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="bg-amber-400 text-slate-950 font-black rounded-lg px-2 py-0.5 text-xs tracking-wider flex items-center gap-1 shadow">
+          <header className="h-14 bg-brand-900 border-b border-blue-900 flex items-center justify-between px-3 sm:px-6 z-40 flex-shrink-0 w-full max-w-full">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="bg-amber-400 text-slate-950 font-black rounded-lg px-2 py-0.5 text-xs tracking-wider flex items-center gap-1 shadow flex-shrink-0">
                 <i data-lucide="wallet" className="w-4 h-4"></i> KAS WARGA
               </div>
-              <span className="text-xs font-semibold text-slate-200 hidden sm:inline border-l border-blue-800 pl-2">
+              <span className="text-xs font-semibold text-slate-200 hidden sm:inline border-l border-blue-800 pl-2 truncate">
                 RT 17 / RW 45
               </span>
             </div>
 
             {/* Role Switcher */}
-            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-blue-900 text-[11px]">
+            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-blue-900 text-[11px] flex-shrink-0">
               <button 
                 onClick={() => { setRoleMode('landing'); showToast('Buka Layar Pilihan Demo'); }} 
-                className={`px-3 py-1 rounded-lg font-medium transition ${roleMode === 'landing' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
+                className={`px-2.5 sm:px-3 py-1 rounded-lg font-medium transition ${roleMode === 'landing' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
                 Landing
               </button>
               <button 
-                onClick={() => { setRoleMode('admin'); showToast('Masuk Portal Admin Full Responsive'); }} 
-                className={`px-3 py-1 rounded-lg font-medium transition ${roleMode === 'admin' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
+                onClick={() => { setRoleMode('admin'); showToast('Masuk Portal Admin'); }} 
+                className={`px-2.5 sm:px-3 py-1 rounded-lg font-medium transition ${roleMode === 'admin' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
                 Admin Portal
               </button>
               <button 
                 onClick={() => { setRoleMode('warga'); showToast('Masuk Portal Warga PWA'); }} 
-                className={`px-3 py-1 rounded-lg font-medium transition ${roleMode === 'warga' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
+                className={`px-2.5 sm:px-3 py-1 rounded-lg font-medium transition ${roleMode === 'warga' ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-400 hover:text-white'}`}>
                 Warga Portal
               </button>
             </div>
@@ -377,7 +392,7 @@
           {/* 1. LANDING PAGE ROLE SELECTOR                                       */}
           {/* =================================================================== */}
           {roleMode === 'landing' && (
-            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-brand-900 via-slate-950 to-slate-950">
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-brand-900 via-slate-950 to-slate-950 w-full">
               
               <div className="text-center space-y-3 max-w-md mb-8">
                 <div className="w-24 h-24 mx-auto mb-2">
@@ -411,7 +426,7 @@
                         Demo Pengurus RT (Pak Sarjito)
                       </h2>
                       <p className="text-xs text-slate-300 mt-1">
-                        Portal Admin **Full Responsive** (Desktop Dashboard + Mobile Drawer). Mengelola 15 modul interaktif verifikasi resi, kas, dan data warga.
+                        Portal Admin **Full Responsive** (Desktop Sidebar + Fixed Mobile Navigation). Mengelola 15 modul interaktif verifikasi resi, kas, dan data warga.
                       </p>
                     </div>
                   </div>
@@ -458,48 +473,48 @@
           )}
 
           {/* =================================================================== */}
-          {/* 2. PORTAL WARGA PWA (FINTECH STYLE - RESPONSIVE CONTAINER)           */}
+          {/* 2. PORTAL WARGA PWA (RESPONSIVE FINTECH CONTAINER)                   */}
           {/* =================================================================== */}
           {roleMode === 'warga' && (
-            <div className="flex-1 flex justify-center bg-slate-950 p-0 sm:p-4 overflow-y-auto">
+            <div className="flex-1 flex justify-center bg-slate-950 p-0 sm:p-4 overflow-y-auto w-full">
               
               <div className="w-full max-w-md bg-slate-100 min-h-[calc(100vh-3.5rem)] sm:rounded-3xl overflow-hidden flex flex-col text-slate-800 shadow-2xl border border-slate-800 relative">
                 
                 {/* Warga Header Bar */}
                 <div className="bg-brand-900 text-white px-4 py-3 flex items-center justify-between shadow-md flex-shrink-0">
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <KasWargaLogo className="w-8 h-8" textSize="text-[6px]" />
-                    <div>
-                      <h3 className="text-xs font-black tracking-wide leading-tight">KAS WARGA PWA</h3>
-                      <p className="text-[10px] text-amber-300 font-semibold">Portal Warga (RT 17)</p>
+                    <div className="min-w-0">
+                      <h3 className="text-xs font-black tracking-wide leading-tight truncate">KAS WARGA PWA</h3>
+                      <p className="text-[10px] text-amber-300 font-semibold truncate">Portal Warga (RT 17)</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setRoleMode('landing')} 
-                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg shadow">
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg shadow flex-shrink-0">
                     Ganti Mode
                   </button>
                 </div>
 
                 {/* SCREEN CONTENT AREA (5 WARGA TABS) */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs pb-24">
                   
                   {/* TAB 1: BERANDA WARGA */}
                   {wargaTab === 'beranda' && (
                     <div className="space-y-4">
                       {/* Hero Welcome Card */}
                       <div className="bg-gradient-to-br from-brand-900 via-brand-blue to-slate-900 text-white p-4 rounded-3xl shadow-lg space-y-1 relative overflow-hidden">
-                        <div className="absolute right-[-10px] bottom-[-10px] opacity-10">
+                        <div className="absolute right-[-10px] bottom-[-10px] opacity-10 pointer-events-none">
                           <i data-lucide="wallet" className="w-32 h-32 text-white"></i>
                         </div>
                         <p className="text-[10px] text-amber-300 font-bold uppercase tracking-wider">Selamat Datang,</p>
-                        <h2 className="font-extrabold text-base">Budi Santoso 👋</h2>
+                        <h2 className="font-extrabold text-base break-words">Budi Santoso 👋</h2>
                         <p className="text-[11px] text-slate-300">Hunian: <strong className="text-white">Blok A1/02</strong> (RT 17 / RW 45)</p>
                       </div>
 
                       {/* Active Invoice Card */}
                       <div className="bg-amber-50 border border-amber-200 p-4 rounded-3xl space-y-3 shadow-sm">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center flex-wrap gap-2">
                           <span className="font-extrabold text-amber-950 text-xs">Tagihan Oktober 2026</span>
                           <span className={`px-2.5 py-0.5 rounded-full font-bold text-[9px] ${
                             budiPaymentStatus === 'Terverifikasi' ? 'bg-emerald-200 text-emerald-900' : 
@@ -510,7 +525,7 @@
                           </span>
                         </div>
 
-                        <div className="flex justify-between items-baseline">
+                        <div className="flex justify-between items-baseline flex-wrap gap-2">
                           <div>
                             <p className="text-2xl font-black text-slate-900">Rp 100.000</p>
                             <p className="text-[10px] text-slate-500 mt-0.5">Iuran Keamanan, Kebersihan & Kas RT</p>
@@ -533,19 +548,19 @@
 
                       {/* Transparansi Kas RT */}
                       <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-2.5">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center flex-wrap gap-1">
                           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Transparansi Kas RT 17</span>
                           <button onClick={() => setWargaTab('kas')} className="text-[10px] font-bold text-brand-blue hover:underline">Rincian Mutasi →</button>
                         </div>
                         <p className="text-2xl font-black text-slate-900">Rp {currentBalance.toLocaleString('id-ID')}</p>
                         <div className="grid grid-cols-2 gap-2 text-[10px]">
-                          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
-                            <span className="text-slate-400 font-semibold">Pemasukan Bulan Ini</span>
-                            <p className="font-bold text-emerald-600 text-xs mt-0.5">+Rp {totalIncome.toLocaleString('id-ID')}</p>
+                          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100 min-w-0">
+                            <span className="text-slate-400 font-semibold truncate block">Pemasukan Bulan Ini</span>
+                            <p className="font-bold text-emerald-600 text-xs mt-0.5 truncate">+Rp {totalIncome.toLocaleString('id-ID')}</p>
                           </div>
-                          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
-                            <span className="text-slate-400 font-semibold">Pengeluaran Bulan Ini</span>
-                            <p className="font-bold text-rose-600 text-xs mt-0.5">-Rp {totalExpense.toLocaleString('id-ID')}</p>
+                          <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100 min-w-0">
+                            <span className="text-slate-400 font-semibold truncate block">Pengeluaran Bulan Ini</span>
+                            <p className="font-bold text-rose-600 text-xs mt-0.5 truncate">-Rp {totalExpense.toLocaleString('id-ID')}</p>
                           </div>
                         </div>
                       </div>
@@ -556,8 +571,8 @@
                           <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded-md">Kabar RT 17</span>
                           <span className="text-[9px] text-slate-400">{announcements[0]?.date}</span>
                         </div>
-                        <p className="font-bold text-slate-800 text-xs">{announcements[0]?.title}</p>
-                        <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{announcements[0]?.content}</p>
+                        <p className="font-bold text-slate-800 text-xs break-words">{announcements[0]?.title}</p>
+                        <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed break-words">{announcements[0]?.content}</p>
                       </div>
                     </div>
                   )}
@@ -572,10 +587,10 @@
 
                       {billings.map(b => (
                         <div key={b.id} className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                          <div className="flex justify-between items-start">
+                          <div className="flex justify-between items-start flex-wrap gap-2">
                             <div>
                               <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-600">{b.type}</span>
-                              <h4 className="font-bold text-slate-800 text-xs mt-1">{b.name}</h4>
+                              <h4 className="font-bold text-slate-800 text-xs mt-1 break-words">{b.name}</h4>
                             </div>
                             <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
                               budiPaymentStatus === 'Terverifikasi' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
@@ -583,7 +598,7 @@
                               {budiPaymentStatus === 'Terverifikasi' ? 'Lunas' : 'Belum Lunas'}
                             </span>
                           </div>
-                          <div className="flex justify-between items-baseline pt-1 border-t border-slate-100">
+                          <div className="flex justify-between items-baseline pt-1 border-t border-slate-100 flex-wrap gap-1">
                             <p className="font-black text-slate-900 text-sm">Rp {b.amount.toLocaleString('id-ID')}</p>
                             <p className="text-[10px] text-slate-400">Periode: {b.period}</p>
                           </div>
@@ -609,12 +624,12 @@
                       <div className="space-y-2">
                         <p className="font-bold text-slate-700 text-xs">Riwayat Mutasi Kas Terbaru:</p>
                         {cashbook.map(t => (
-                          <div key={t.id} className="bg-white p-3 rounded-2xl border border-slate-200 text-xs flex justify-between items-center shadow-sm">
-                            <div>
-                              <p className="font-bold text-slate-800">{t.description}</p>
+                          <div key={t.id} className="bg-white p-3 rounded-2xl border border-slate-200 text-xs flex justify-between items-center shadow-sm gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-slate-800 break-words">{t.description}</p>
                               <p className="text-[9px] text-slate-400 mt-0.5">{t.date} • {t.category}</p>
                             </div>
-                            <span className={`font-black text-xs ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            <span className={`font-black text-xs flex-shrink-0 ${t.type === 'Pemasukan' ? 'text-emerald-600' : 'text-rose-600'}`}>
                               {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
                             </span>
                           </div>
@@ -633,8 +648,8 @@
                             <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded-md">{a.category}</span>
                             <span className="text-[9px] text-slate-400">{a.date}</span>
                           </div>
-                          <h4 className="font-bold text-slate-800 text-xs">{a.title}</h4>
-                          <p className="text-[10px] text-slate-600 leading-relaxed">{a.content}</p>
+                          <h4 className="font-bold text-slate-800 text-xs break-words">{a.title}</h4>
+                          <p className="text-[10px] text-slate-600 leading-relaxed break-words">{a.content}</p>
                           <p className="text-[9px] text-slate-400 pt-1 font-semibold border-t border-slate-100">— {a.author}</p>
                         </div>
                       ))}
@@ -671,8 +686,8 @@
 
                 </div>
 
-                {/* BOTTOM NAVIGATION BAR WARGA (5 TABS) */}
-                <div className="h-16 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[9px] font-bold flex-shrink-0">
+                {/* BOTTOM NAVIGATION BAR WARGA (5 TABS FIXED) */}
+                <div className="h-16 bg-white border-t border-slate-200 flex items-center justify-around text-slate-400 text-[9px] font-bold flex-shrink-0 absolute bottom-0 left-0 right-0 z-30">
                   <button onClick={() => setWargaTab('beranda')} className={`flex flex-col items-center gap-0.5 ${wargaTab === 'beranda' ? 'text-brand-blue font-extrabold' : 'hover:text-slate-700'}`}>
                     <i data-lucide="home" className="w-4 h-4"></i> Beranda
                   </button>
@@ -696,19 +711,19 @@
           )}
 
           {/* =================================================================== */}
-          {/* 3. PORTAL ADMIN FULL RESPONSIVE (DESKTOP SIDEBAR + MOBILE DRAWER)   */}
+          {/* 3. PORTAL ADMIN (RESPONSIVE DESKTOP SIDEBAR + MOBILE FIXED BOTTOM NAV) */}
           {/* =================================================================== */}
           {roleMode === 'admin' && (
-            <div className="flex-1 flex flex-col md:flex-row bg-slate-950 overflow-hidden">
+            <div className="flex-1 flex flex-col md:flex-row bg-slate-950 overflow-hidden w-full max-w-full relative">
               
               {/* DESKTOP SIDEBAR (Visible on md breakpoint) */}
-              <aside className="hidden md:flex w-64 bg-brand-900 border-r border-blue-900 flex-col justify-between flex-shrink-0">
+              <aside className="hidden md:flex w-64 bg-brand-900 border-r border-blue-900 flex-col justify-between flex-shrink-0 h-full">
                 <div className="p-4 space-y-4">
-                  <div className="flex items-center gap-3 border-b border-blue-800/60 pb-3">
+                  <div className="flex items-center gap-3 border-b border-blue-800/60 pb-3 min-w-0">
                     <KasWargaLogo className="w-9 h-9" textSize="text-[6px]" />
-                    <div>
-                      <h2 className="font-extrabold text-sm text-white leading-tight">KAS WARGA</h2>
-                      <p className="text-[10px] text-amber-300 font-bold">Admin Portal RT 17</p>
+                    <div className="min-w-0">
+                      <h2 className="font-extrabold text-sm text-white leading-tight truncate">KAS WARGA</h2>
+                      <p className="text-[10px] text-amber-300 font-bold truncate">Admin Portal RT 17</p>
                     </div>
                   </div>
 
@@ -720,12 +735,12 @@
                         key={mod.id}
                         onClick={() => setActiveAdminModule(mod.id)}
                         className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between font-medium transition ${activeAdminModule === mod.id ? 'bg-amber-400 text-slate-950 font-bold shadow' : 'text-slate-300 hover:bg-brand-blue hover:text-white'}`}>
-                        <div className="flex items-center gap-2.5">
-                          <i data-lucide={mod.icon} className="w-4 h-4"></i>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <i data-lucide={mod.icon} className="w-4 h-4 flex-shrink-0"></i>
                           <span className="truncate">{mod.name}</span>
                         </div>
                         {mod.badge > 0 && (
-                          <span className="bg-rose-500 text-white font-black text-[9px] px-1.5 py-0.2 rounded-full">
+                          <span className="bg-rose-500 text-white font-black text-[9px] px-1.5 py-0.2 rounded-full flex-shrink-0">
                             {mod.badge}
                           </span>
                         )}
@@ -735,70 +750,70 @@
                 </div>
 
                 <div className="p-3 border-t border-blue-900 bg-slate-950/50 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-[10px]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-[10px] flex-shrink-0">
                       PS
                     </div>
-                    <div>
-                      <p className="font-bold text-white text-[11px]">Pak Sarjito</p>
-                      <p className="text-[9px] text-slate-400">Ketua RT 17</p>
+                    <div className="min-w-0">
+                      <p className="font-bold text-white text-[11px] truncate">Pak Sarjito</p>
+                      <p className="text-[9px] text-slate-400 truncate">Ketua RT 17</p>
                     </div>
                   </div>
-                  <button onClick={() => setRoleMode('landing')} className="text-slate-400 hover:text-rose-400">
+                  <button onClick={() => setRoleMode('landing')} className="text-slate-400 hover:text-rose-400 flex-shrink-0">
                     <i data-lucide="log-out" className="w-4 h-4"></i>
                   </button>
                 </div>
               </aside>
 
-              {/* MOBILE BAR HEADER & DRAWER TRIGGER (Visible on screens < md) */}
-              <div className="md:hidden bg-brand-900 p-3 flex justify-between items-center border-b border-blue-900">
-                <div className="flex items-center gap-2">
+              {/* MOBILE BAR HEADER (Visible on screens < md) */}
+              <div className="md:hidden bg-brand-900 p-3 flex justify-between items-center border-b border-blue-900 w-full flex-shrink-0 z-20">
+                <div className="flex items-center gap-2 min-w-0">
                   <KasWargaLogo className="w-7 h-7" textSize="text-[5px]" />
-                  <span className="font-bold text-xs text-white">Admin Kas Warga (RT 17)</span>
+                  <span className="font-bold text-xs text-white truncate">Admin Kas Warga (RT 17)</span>
                 </div>
                 <button 
                   onClick={() => setShowModuleDrawer(true)} 
-                  className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl flex items-center gap-1 shadow">
+                  className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1.5 rounded-xl flex items-center gap-1 shadow flex-shrink-0">
                   <i data-lucide="grid" className="w-4 h-4"></i> 15 Modul
                 </button>
               </div>
 
               {/* MAIN CONTENT AREA (DYNAMIC MODULE RENDER) */}
-              <main className="flex-1 bg-slate-900 p-4 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-200">
+              <main className="flex-1 bg-slate-900 p-4 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-200 w-full max-w-full pb-24 md:pb-6">
                 
                 {/* 1. DASHBOARD UTAMA */}
                 {activeAdminModule === 'dashboard' && (
-                  <div className="space-y-6">
+                  <div className="space-y-6 w-full max-w-full">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
                       <div>
-                        <h1 className="text-xl font-extrabold text-white">Dashboard Pengurus RT 17 / RW 45</h1>
+                        <h1 className="text-xl font-extrabold text-white break-words">Dashboard Pengurus RT 17 / RW 45</h1>
                         <p className="text-xs text-slate-400">Ringkasan kas, antrean verifikasi, dan statistik warga real-time.</p>
                       </div>
-                      <button onClick={() => setModalType('addTransaction')} className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-4 py-2 rounded-xl flex items-center gap-2 shadow">
+                      <button onClick={() => setModalType('addTransaction')} className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-4 py-2 rounded-xl flex items-center gap-2 shadow flex-shrink-0">
                         <i data-lucide="plus-circle" className="w-4 h-4"></i> + Catat Mutasi
                       </button>
                     </div>
 
                     {/* KPI Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="bg-gradient-to-br from-brand-900 to-slate-900 border border-blue-800/80 p-4 rounded-2xl shadow space-y-1">
-                        <p className="text-[10px] font-bold text-amber-300 uppercase">Total Saldo Kas RT</p>
-                        <p className="text-2xl font-black text-white">Rp {currentBalance.toLocaleString('id-ID')}</p>
-                        <span className="text-[9px] text-emerald-400 font-bold">🟢 Sinkron dengan Bank Mandiri</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                      <div className="bg-gradient-to-br from-brand-900 to-slate-900 border border-blue-800/80 p-4 rounded-2xl shadow space-y-1 min-w-0">
+                        <p className="text-[10px] font-bold text-amber-300 uppercase truncate">Total Saldo Kas RT</p>
+                        <p className="text-2xl font-black text-white truncate">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                        <span className="text-[9px] text-emerald-400 font-bold block truncate">🟢 Sinkron dengan Bank Mandiri</span>
                       </div>
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl shadow space-y-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">Pemasukan Bulan Ini</p>
-                        <p className="text-xl font-black text-emerald-400">+Rp {totalIncome.toLocaleString('id-ID')}</p>
-                        <span className="text-[9px] text-slate-400">Terdaftar {cashbook.filter(t=>t.type==='Pemasukan').length} Transaksi</span>
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl shadow space-y-1 min-w-0">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase truncate">Pemasukan Bulan Ini</p>
+                        <p className="text-xl font-black text-emerald-400 truncate">+Rp {totalIncome.toLocaleString('id-ID')}</p>
+                        <span className="text-[9px] text-slate-400 block truncate">Terdaftar {cashbook.filter(t=>t.type==='Pemasukan').length} Transaksi</span>
                       </div>
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl shadow space-y-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">Pengeluaran Bulan Ini</p>
-                        <p className="text-xl font-black text-rose-400">-Rp {totalExpense.toLocaleString('id-ID')}</p>
-                        <span className="text-[9px] text-slate-400">Operasional & Sampah</span>
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl shadow space-y-1 min-w-0">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase truncate">Pengeluaran Bulan Ini</p>
+                        <p className="text-xl font-black text-rose-400 truncate">-Rp {totalExpense.toLocaleString('id-ID')}</p>
+                        <span className="text-[9px] text-slate-400 block truncate">Operasional & Sampah</span>
                       </div>
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl shadow space-y-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">Antrean Verifikasi</p>
-                        <p className="text-xl font-black text-amber-400">{pendingCount} Resi Pending</p>
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl shadow space-y-1 min-w-0">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase truncate">Antrean Verifikasi</p>
+                        <p className="text-xl font-black text-amber-400 truncate">{pendingCount} Resi Pending</p>
                         <button onClick={() => setActiveAdminModule('payments')} className="text-[9px] text-amber-300 underline font-bold">Periksa Sekarang →</button>
                       </div>
                     </div>
@@ -806,29 +821,29 @@
                     {/* Pending Verification Callout */}
                     {pendingCount > 0 && (
                       <div className="bg-amber-400/10 border border-amber-400/30 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black flex-shrink-0">
                             <i data-lucide="bell" className="w-5 h-5"></i>
                           </div>
-                          <div>
-                            <h3 className="font-bold text-amber-300 text-sm">Ada {pendingCount} Pembayaran Membutuhkan Verifikasi</h3>
-                            <p className="text-[11px] text-slate-300">Resi transfer warga telah diunggah dan menunggu konfirmasi Pak Sarjito.</p>
+                          <div className="min-w-0">
+                            <h3 className="font-bold text-amber-300 text-sm break-words">Ada {pendingCount} Pembayaran Membutuhkan Verifikasi</h3>
+                            <p className="text-[11px] text-slate-300 break-words">Resi transfer warga telah diunggah dan menunggu konfirmasi Pak Sarjito.</p>
                           </div>
                         </div>
-                        <button onClick={() => setActiveAdminModule('payments')} className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">
+                        <button onClick={() => setActiveAdminModule('payments')} className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex-shrink-0">
                           Buka Verifikasi →
                         </button>
                       </div>
                     )}
 
-                    {/* Recent Transactions Table */}
-                    <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 space-y-3">
-                      <div className="flex justify-between items-center border-b border-slate-700 pb-2">
+                    {/* Recent Transactions Table Container with internal scroll */}
+                    <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 space-y-3 w-full overflow-hidden">
+                      <div className="flex justify-between items-center border-b border-slate-700 pb-2 flex-wrap gap-2">
                         <h3 className="font-bold text-white text-sm">Mutasi Kas Terbaru</h3>
                         <button onClick={() => setActiveAdminModule('finance')} className="text-xs text-amber-400 hover:underline">Lihat Semua Buku Kas →</button>
                       </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
+                      <div className="overflow-x-auto w-full max-w-full">
+                        <table className="w-full text-left text-xs min-w-[500px]">
                           <thead>
                             <tr className="text-slate-400 border-b border-slate-700 text-[10px]">
                               <th className="pb-2">Tanggal</th>
@@ -840,10 +855,10 @@
                           <tbody className="divide-y divide-slate-700/50">
                             {cashbook.slice(0, 4).map(t => (
                               <tr key={t.id} className="hover:bg-slate-800/50">
-                                <td className="py-2.5 font-mono text-slate-400">{t.date}</td>
-                                <td className="py-2.5"><span className="bg-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">{t.category}</span></td>
+                                <td className="py-2.5 font-mono text-slate-400 whitespace-nowrap">{t.date}</td>
+                                <td className="py-2.5 whitespace-nowrap"><span className="bg-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">{t.category}</span></td>
                                 <td className="py-2.5 font-medium text-slate-200">{t.description}</td>
-                                <td className={`py-2.5 text-right font-black ${t.type === 'Pemasukan' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                <td className={`py-2.5 text-right font-black whitespace-nowrap ${t.type === 'Pemasukan' ? 'text-emerald-400' : 'text-rose-400'}`}>
                                   {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
                                 </td>
                               </tr>
@@ -857,19 +872,19 @@
 
                 {/* 2. DATA WARGA & RUMAH */}
                 {activeAdminModule === 'residents' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <div className="space-y-4 w-full">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
                       <div>
                         <h2 className="font-extrabold text-base text-white">Modul 2 — Data Warga & Hunian</h2>
                         <p className="text-slate-400 text-[11px]">Total {houses.length} unit rumah terdaftar di RT 17.</p>
                       </div>
-                      <button onClick={() => setModalType('addHouse')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow">
+                      <button onClick={() => setModalType('addHouse')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow flex-shrink-0">
                         <i data-lucide="plus" className="w-4 h-4"></i> Tambah Warga
                       </button>
                     </div>
 
-                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl">
-                      <table className="w-full text-left text-xs">
+                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl w-full max-w-full">
+                      <table className="w-full text-left text-xs min-w-[550px]">
                         <thead className="bg-slate-800 text-slate-400 border-b border-slate-700 text-[10px]">
                           <tr>
                             <th className="p-3">Blok</th>
@@ -883,16 +898,16 @@
                         <tbody className="divide-y divide-slate-700/50">
                           {houses.map(h => (
                             <tr key={h.id} className="hover:bg-slate-800/40">
-                              <td className="p-3 font-black text-amber-300">{h.block}</td>
+                              <td className="p-3 font-black text-amber-300 whitespace-nowrap">{h.block}</td>
                               <td className="p-3 font-bold text-white">{h.owner}</td>
-                              <td className="p-3 font-mono text-slate-300">{h.phone}</td>
-                              <td className="p-3">
+                              <td className="p-3 font-mono text-slate-300 whitespace-nowrap">{h.phone}</td>
+                              <td className="p-3 whitespace-nowrap">
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${h.status === 'Tetap' ? 'bg-emerald-900/80 text-emerald-300' : h.status === 'Kontrak' ? 'bg-blue-900/80 text-blue-300' : 'bg-slate-700 text-slate-400'}`}>
                                   {h.status}
                                 </span>
                               </td>
-                              <td className="p-3">{h.residents} Jiwa</td>
-                              <td className="p-3 text-right">
+                              <td className="p-3 whitespace-nowrap">{h.residents} Jiwa</td>
+                              <td className="p-3 text-right whitespace-nowrap">
                                 <button onClick={() => showToast(`Pesan WA dikirim ke ${h.owner}`)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] inline-flex items-center gap-1">
                                   <i data-lucide="message-square" className="w-3 h-3"></i> WA Tagihan
                                 </button>
@@ -907,29 +922,29 @@
 
                 {/* 3. TAGIHAN & JENIS IURAN */}
                 {activeAdminModule === 'billing' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <div className="space-y-4 w-full">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
                       <div>
                         <h2 className="font-extrabold text-base text-white">Modul 3 — Tagihan & Tarif Jenis Iuran</h2>
                         <p className="text-slate-400 text-[11px]">Pengaturan besaran tarif iuran rutin maupun insidental.</p>
                       </div>
-                      <button onClick={() => setModalType('addBilling')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow">
+                      <button onClick={() => setModalType('addBilling')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow flex-shrink-0">
                         <i data-lucide="plus" className="w-4 h-4"></i> + Jenis Iuran
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                       {billings.map(b => (
-                        <div key={b.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 shadow">
-                          <div className="flex justify-between items-center">
+                        <div key={b.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 shadow min-w-0">
+                          <div className="flex justify-between items-center flex-wrap gap-1">
                             <span className="bg-blue-900/80 text-blue-300 font-bold px-2 py-0.5 rounded text-[10px]">{b.type}</span>
                             <span className="bg-emerald-900/80 text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">{b.status}</span>
                           </div>
                           <div>
-                            <h3 className="font-bold text-white text-sm">{b.name}</h3>
+                            <h3 className="font-bold text-white text-sm break-words">{b.name}</h3>
                             <p className="text-2xl font-black text-amber-300 mt-1">Rp {b.amount.toLocaleString('id-ID')}</p>
                           </div>
-                          <div className="pt-2 border-t border-slate-700 flex justify-between text-[10px] text-slate-400">
+                          <div className="pt-2 border-t border-slate-700 flex justify-between text-[10px] text-slate-400 flex-wrap gap-1">
                             <span>Target: {b.target}</span>
                             <span>Periode: {b.period}</span>
                           </div>
@@ -941,32 +956,32 @@
 
                 {/* 4. VERIFIKASI BAYAR */}
                 {activeAdminModule === 'payments' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <div className="space-y-4 w-full">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
                       <div>
                         <h2 className="font-extrabold text-base text-white">Modul 4 — Verifikasi Resi Pembayaran</h2>
                         <p className="text-slate-400 text-[11px]">Pemeriksaan resi transfer yang diunggah warga.</p>
                       </div>
-                      <span className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full">
+                      <span className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full flex-shrink-0">
                         {pendingCount} Menunggu Konfirmasi
                       </span>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-3 w-full">
                       {payments.map(p => (
-                        <div key={p.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-black text-white text-sm">{p.house}</h3>
+                        <div key={p.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 flex flex-col sm:flex-row justify-between sm:items-center gap-4 w-full">
+                          <div className="space-y-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-black text-white text-sm break-words">{p.house}</h3>
                               <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${p.status === 'Terverifikasi' ? 'bg-emerald-900/80 text-emerald-300' : p.status === 'Ditolak' ? 'bg-rose-900/80 text-rose-300' : 'bg-amber-400 text-slate-950 font-bold animate-pulse'}`}>
                                 {p.status}
                               </span>
                             </div>
-                            <p className="text-slate-300 text-xs">{p.billing} • {p.method}</p>
+                            <p className="text-slate-300 text-xs break-words">{p.billing} • {p.method}</p>
                             <p className="text-slate-500 text-[10px]">{p.date}</p>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-wrap justify-between sm:justify-end flex-shrink-0">
                             <span className="text-lg font-black text-white">Rp {p.total.toLocaleString('id-ID')}</span>
                             {p.proof && (
                               <button onClick={() => { setSelectedProof(p.proof); setModalType('viewProof'); }} className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1">
@@ -993,19 +1008,19 @@
 
                 {/* 5. BUKU KAS & TRANSAKSI */}
                 {activeAdminModule === 'finance' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <div className="space-y-4 w-full">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
                       <div>
                         <h2 className="font-extrabold text-base text-white">Modul 5 — Buku Kas Utama RT 17</h2>
                         <p className="text-slate-400 text-[11px]">Pencatatan mutasi kas masuk dan kas keluar lengkap.</p>
                       </div>
-                      <button onClick={() => setModalType('addTransaction')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow">
+                      <button onClick={() => setModalType('addTransaction')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow flex-shrink-0">
                         <i data-lucide="plus" className="w-4 h-4"></i> + Catat Mutasi
                       </button>
                     </div>
 
-                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl">
-                      <table className="w-full text-left text-xs">
+                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl w-full max-w-full">
+                      <table className="w-full text-left text-xs min-w-[600px]">
                         <thead className="bg-slate-800 text-slate-400 border-b border-slate-700 text-[10px]">
                           <tr>
                             <th className="p-3">ID Transaksi</th>
@@ -1019,16 +1034,16 @@
                         <tbody className="divide-y divide-slate-700/50">
                           {cashbook.map(t => (
                             <tr key={t.id} className="hover:bg-slate-800/40">
-                              <td className="p-3 font-mono text-slate-400">{t.id}</td>
-                              <td className="p-3 font-mono">{t.date}</td>
-                              <td className="p-3">
+                              <td className="p-3 font-mono text-slate-400 whitespace-nowrap">{t.id}</td>
+                              <td className="p-3 font-mono whitespace-nowrap">{t.date}</td>
+                              <td className="p-3 whitespace-nowrap">
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.type === 'Pemasukan' ? 'bg-emerald-900/80 text-emerald-300' : 'bg-rose-900/80 text-rose-300'}`}>
                                   {t.type}
                                 </span>
                               </td>
-                              <td className="p-3">{t.category}</td>
+                              <td className="p-3 whitespace-nowrap">{t.category}</td>
                               <td className="p-3 font-medium text-white">{t.description}</td>
-                              <td className={`p-3 text-right font-black ${t.type === 'Pemasukan' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              <td className={`p-3 text-right font-black whitespace-nowrap ${t.type === 'Pemasukan' ? 'text-emerald-400' : 'text-rose-400'}`}>
                                 {t.type === 'Pemasukan' ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
                               </td>
                             </tr>
@@ -1041,30 +1056,30 @@
 
                 {/* 6. POS PENGELUARAN */}
                 {activeAdminModule === 'expenses' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 6 — Pos Pengeluaran Operasional</h2>
                       <p className="text-slate-400 text-[11px]">Kontrol realisasi pengeluaran bulanan dibanding anggaran.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-bold text-white">Keamanan & Ronda Satpam</h3>
-                          <span className="text-emerald-400 font-bold">100% Realisasi</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 min-w-0">
+                        <div className="flex justify-between items-center flex-wrap gap-1">
+                          <h3 className="font-bold text-white break-words">Keamanan & Ronda Satpam</h3>
+                          <span className="text-emerald-400 font-bold text-xs">100% Realisasi</span>
                         </div>
-                        <p className="text-xs text-slate-400">Anggaran Bulanan: Rp 1.800.000 | Realisasi: Rp 1.800.000</p>
+                        <p className="text-xs text-slate-400 break-words">Anggaran Bulanan: Rp 1.800.000 | Realisasi: Rp 1.800.000</p>
                         <div className="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
                           <div className="bg-emerald-500 h-full w-full"></div>
                         </div>
                       </div>
 
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-bold text-white">Kebersihan & TPA Sampah</h3>
-                          <span className="text-amber-400 font-bold">85% Realisasi</span>
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 min-w-0">
+                        <div className="flex justify-between items-center flex-wrap gap-1">
+                          <h3 className="font-bold text-white break-words">Kebersihan & TPA Sampah</h3>
+                          <span className="text-amber-400 font-bold text-xs">85% Realisasi</span>
                         </div>
-                        <p className="text-xs text-slate-400">Anggaran Bulanan: Rp 700.000 | Realisasi: Rp 600.000</p>
+                        <p className="text-xs text-slate-400 break-words">Anggaran Bulanan: Rp 700.000 | Realisasi: Rp 600.000</p>
                         <div className="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
                           <div className="bg-amber-400 h-full w-[85%]"></div>
                         </div>
@@ -1075,26 +1090,26 @@
 
                 {/* 7. REKONSILIASI SALDO BANK */}
                 {activeAdminModule === 'reconciliation' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 7 — Rekonsiliasi Saldo Bank vs Kas Fisik</h2>
                       <p className="text-slate-400 text-[11px]">Pencocokan saldo catatan kas sistem dengan rekening Bank Mandiri RT 17.</p>
                     </div>
 
-                    <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl space-y-4 max-w-xl">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-700">
-                          <p className="text-[10px] text-slate-400 font-bold">Saldo Catatan Sistem</p>
-                          <p className="text-lg font-black text-white mt-1">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                    <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl space-y-4 max-w-xl w-full">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-700 min-w-0">
+                          <p className="text-[10px] text-slate-400 font-bold truncate">Saldo Catatan Sistem</p>
+                          <p className="text-lg font-black text-white mt-1 truncate">Rp {currentBalance.toLocaleString('id-ID')}</p>
                         </div>
-                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-700">
-                          <p className="text-[10px] text-slate-400 font-bold">Saldo Rekening Mandiri</p>
-                          <p className="text-lg font-black text-emerald-400 mt-1">Rp {currentBalance.toLocaleString('id-ID')}</p>
+                        <div className="bg-slate-900 p-3 rounded-xl border border-slate-700 min-w-0">
+                          <p className="text-[10px] text-slate-400 font-bold truncate">Saldo Rekening Mandiri</p>
+                          <p className="text-lg font-black text-emerald-400 mt-1 truncate">Rp {currentBalance.toLocaleString('id-ID')}</p>
                         </div>
                       </div>
 
-                      <div className="bg-emerald-900/40 border border-emerald-500/30 p-3 rounded-xl text-center text-emerald-300 font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="check-circle-2" className="w-5 h-5"></i> STATUS: REKONSILIASI BALANS (SELISIH Rp 0)
+                      <div className="bg-emerald-900/40 border border-emerald-500/30 p-3 rounded-xl text-center text-emerald-300 font-bold flex items-center justify-center gap-2 text-xs">
+                        <i data-lucide="check-circle-2" className="w-5 h-5 flex-shrink-0"></i> STATUS: REKONSILIASI BALANS (SELISIH Rp 0)
                       </div>
                     </div>
                   </div>
@@ -1102,27 +1117,27 @@
 
                 {/* 8. LAPORAN & TUTUP BUKU */}
                 {activeAdminModule === 'reports' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 8 — Laporan LPJ Keuangan & Export</h2>
                       <p className="text-slate-400 text-[11px]">Unduh Laporan Pertanggungjawaban Keuangan format PDF / Excel.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl w-full">
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 min-w-0">
                         <i data-lucide="file-text" className="w-8 h-8 text-rose-400"></i>
-                        <h3 className="font-bold text-white">Laporan LPJ Kas RT 17 (PDF)</h3>
-                        <p className="text-[11px] text-slate-400">Siap cetak untuk rapat rutin pengurus RT & warga.</p>
-                        <button onClick={() => showToast('Mendownload Laporan LPJ Kas (PDF)...')} className="w-full bg-brand-blue hover:bg-blue-900 text-white font-bold py-2 rounded-xl">
+                        <h3 className="font-bold text-white break-words">Laporan LPJ Kas RT 17 (PDF)</h3>
+                        <p className="text-[11px] text-slate-400 break-words">Siap cetak untuk rapat rutin pengurus RT & warga.</p>
+                        <button onClick={() => showToast('Mendownload Laporan LPJ Kas (PDF)...')} className="w-full bg-brand-blue hover:bg-blue-900 text-white font-bold py-2 rounded-xl text-xs">
                           Download PDF
                         </button>
                       </div>
 
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3">
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 min-w-0">
                         <i data-lucide="file-spreadsheet" className="w-8 h-8 text-emerald-400"></i>
-                        <h3 className="font-bold text-white">Rekap Tunggakan Warga (Excel)</h3>
-                        <p className="text-[11px] text-slate-400">Format spreadsheet lengkap status bayar per rumah.</p>
-                        <button onClick={() => showToast('Mendownload Rekap Tunggakan (Excel)...')} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl">
+                        <h3 className="font-bold text-white break-words">Rekap Tunggakan Warga (Excel)</h3>
+                        <p className="text-[11px] text-slate-400 break-words">Format spreadsheet lengkap status bayar per rumah.</p>
+                        <button onClick={() => showToast('Mendownload Rekap Tunggakan (Excel)...')} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">
                           Download Excel
                         </button>
                       </div>
@@ -1132,26 +1147,26 @@
 
                 {/* 9. PENGUMUMAN & LPJ */}
                 {activeAdminModule === 'announcements' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <div className="space-y-4 w-full">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
                       <div>
                         <h2 className="font-extrabold text-base text-white">Modul 9 — Publikasi Pengumuman RT 17</h2>
                         <p className="text-slate-400 text-[11px]">Kelola kabar warga yang langsung tampil di PWA Warga.</p>
                       </div>
-                      <button onClick={() => setModalType('addAnnouncement')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow">
+                      <button onClick={() => setModalType('addAnnouncement')} className="bg-amber-400 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow flex-shrink-0">
                         <i data-lucide="plus" className="w-4 h-4"></i> + Pengumuman
                       </button>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-3 w-full">
                       {announcements.map(a => (
-                        <div key={a.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-2">
-                          <div className="flex justify-between items-center">
+                        <div key={a.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-2 min-w-0">
+                          <div className="flex justify-between items-center flex-wrap gap-1">
                             <span className="bg-amber-400/20 text-amber-300 font-bold px-2.5 py-0.5 rounded text-[10px]">{a.category}</span>
                             <span className="text-[10px] text-slate-400 font-mono">{a.date}</span>
                           </div>
-                          <h3 className="font-bold text-white text-sm">{a.title}</h3>
-                          <p className="text-slate-300 leading-relaxed text-xs">{a.content}</p>
+                          <h3 className="font-bold text-white text-sm break-words">{a.title}</h3>
+                          <p className="text-slate-300 leading-relaxed text-xs break-words">{a.content}</p>
                           <p className="text-[10px] text-slate-500 font-semibold pt-1 border-t border-slate-700/50">— {a.author}</p>
                         </div>
                       ))}
@@ -1161,13 +1176,13 @@
 
                 {/* 10. INTEGRASI WHATSAPP */}
                 {activeAdminModule === 'whatsapp' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 10 — Generator Broadcast WhatsApp</h2>
                       <p className="text-slate-400 text-[11px]">Buat teks reminder tagihan otomatis untuk dikirim ke grup/person Warga.</p>
                     </div>
 
-                    <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl space-y-3 max-w-xl">
+                    <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl space-y-3 max-w-xl w-full">
                       <label className="font-bold text-white">Draf Teks Pesan WhatsApp:</label>
                       <textarea 
                         rows="4" 
@@ -1175,7 +1190,7 @@
                         onChange={e => setWaMessage(e.target.value)}
                         className="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-amber-400">
                       </textarea>
-                      <button onClick={() => { navigator.clipboard?.writeText(waMessage); showToast('Teks WA Berhasil Disalin!'); }} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2">
+                      <button onClick={() => { navigator.clipboard?.writeText(waMessage); showToast('Teks WA Berhasil Disalin!'); }} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 text-xs">
                         <i data-lucide="copy" className="w-4 h-4"></i> Salin Teks Broadcast WA
                       </button>
                     </div>
@@ -1184,26 +1199,26 @@
 
                 {/* 11. PENDAFTARAN BARU */}
                 {activeAdminModule === 'registrations' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 11 — Permohonan Pendaftaran Warga Baru</h2>
                       <p className="text-slate-400 text-[11px]">Verifikasi pendaftaran calon warga baru yang masuk dari tautan registrasi.</p>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-3 w-full">
                       {registrations.length === 0 ? (
                         <p className="text-slate-500 italic">Tidak ada permohonan warga baru yang pending.</p>
                       ) : (
                         registrations.map(r => (
-                          <div key={r.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-white text-sm">{r.name}</h3>
+                          <div key={r.id} className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-3 w-full">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-bold text-white text-sm break-words">{r.name}</h3>
                                 <span className="bg-blue-900 text-blue-300 text-[9px] font-bold px-2 py-0.5 rounded">{r.type}</span>
                               </div>
-                              <p className="text-slate-400 text-xs">Blok: <strong className="text-amber-300">{r.block}</strong> • WA: {r.phone}</p>
+                              <p className="text-slate-400 text-xs mt-0.5 break-words">Blok: <strong className="text-amber-300">{r.block}</strong> • WA: {r.phone}</p>
                             </div>
-                            <button onClick={() => handleApproveRegistration(r.id)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1">
+                            <button onClick={() => handleApproveRegistration(r.id)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 flex-shrink-0">
                               <i data-lucide="user-check" className="w-4 h-4"></i> Disetujui & Masukkan Database
                             </button>
                           </div>
@@ -1215,20 +1230,20 @@
 
                 {/* 12. LINK FORM QRIS / MANDIRI */}
                 {activeAdminModule === 'registration-links' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 12 — Tautan Rekening & QRIS RT 17</h2>
                       <p className="text-slate-400 text-[11px]">Pengaturan rekening penerima iuran warga.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-2 text-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl w-full">
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-2 text-center min-w-0">
                         <span className="font-bold text-amber-300 text-xs">QRIS Resmi RT 17</span>
-                        <img src="https://placehold.co/200x200/0f2355/ffffff?text=QRIS+RT+17" alt="QRIS RT 17" className="w-40 h-40 mx-auto rounded-xl border border-slate-600" />
+                        <img src="https://placehold.co/200x200/0f2355/ffffff?text=QRIS+RT+17" alt="QRIS RT 17" className="w-40 h-40 mx-auto rounded-xl border border-slate-600 object-cover" />
                         <p className="text-[10px] text-slate-400">Atas Nama: Kas Rutin RT 17 RW 45</p>
                       </div>
 
-                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3">
+                      <div className="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3 min-w-0">
                         <span className="font-bold text-amber-300 text-xs">Rekening Bank Mandiri</span>
                         <div>
                           <p className="text-xs text-slate-400">No. Rekening:</p>
@@ -1245,14 +1260,14 @@
 
                 {/* 13. PENGGUNA & HAK AKSES */}
                 {activeAdminModule === 'users' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 13 — Pengelola & Hak Akses Pengurus</h2>
                       <p className="text-slate-400 text-[11px]">Daftar akun pengurus RT yang memiliki akses portal Admin Kas Warga.</p>
                     </div>
 
-                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl">
-                      <table className="w-full text-left text-xs">
+                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl w-full max-w-full">
+                      <table className="w-full text-left text-xs min-w-[500px]">
                         <thead className="bg-slate-800 text-slate-400 border-b border-slate-700 text-[10px]">
                           <tr>
                             <th className="p-3">Nama Pengurus</th>
@@ -1264,10 +1279,10 @@
                         <tbody className="divide-y divide-slate-700/50">
                           {usersList.map(u => (
                             <tr key={u.id}>
-                              <td className="p-3 font-bold text-white">{u.name}</td>
-                              <td className="p-3"><span className="bg-blue-900/80 text-blue-300 font-bold px-2 py-0.5 rounded text-[10px]">{u.role}</span></td>
-                              <td className="p-3 font-mono text-slate-300">{u.email}</td>
-                              <td className="p-3"><span className="bg-emerald-900/80 text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">{u.status}</span></td>
+                              <td className="p-3 font-bold text-white whitespace-nowrap">{u.name}</td>
+                              <td className="p-3 whitespace-nowrap"><span className="bg-blue-900/80 text-blue-300 font-bold px-2 py-0.5 rounded text-[10px]">{u.role}</span></td>
+                              <td className="p-3 font-mono text-slate-300 whitespace-nowrap">{u.email}</td>
+                              <td className="p-3 whitespace-nowrap"><span className="bg-emerald-900/80 text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">{u.status}</span></td>
                             </tr>
                           ))}
                         </tbody>
@@ -1278,14 +1293,14 @@
 
                 {/* 14. AUDIT LOG AKTIVITAS */}
                 {activeAdminModule === 'audit' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 14 — Audit Log Aktivitas Sistem</h2>
                       <p className="text-slate-400 text-[11px]">Catatan transparan setiap tindakan yang dilakukan pengurus di sistem.</p>
                     </div>
 
-                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl">
-                      <table className="w-full text-left text-xs">
+                    <div className="overflow-x-auto bg-slate-800/60 border border-slate-700 rounded-2xl w-full max-w-full">
+                      <table className="w-full text-left text-xs min-w-[550px]">
                         <thead className="bg-slate-800 text-slate-400 border-b border-slate-700 text-[10px]">
                           <tr>
                             <th className="p-3">Waktu</th>
@@ -1297,10 +1312,10 @@
                         <tbody className="divide-y divide-slate-700/50">
                           {auditLogs.map(l => (
                             <tr key={l.id}>
-                              <td className="p-3 font-mono text-slate-400">{l.time}</td>
-                              <td className="p-3 font-bold text-amber-300">{l.user}</td>
+                              <td className="p-3 font-mono text-slate-400 whitespace-nowrap">{l.time}</td>
+                              <td className="p-3 font-bold text-amber-300 whitespace-nowrap">{l.user}</td>
                               <td className="p-3 text-slate-200">{l.action}</td>
-                              <td className="p-3"><span className="bg-emerald-900/80 text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">{l.status}</span></td>
+                              <td className="p-3 whitespace-nowrap"><span className="bg-emerald-900/80 text-emerald-300 font-bold px-2 py-0.5 rounded text-[10px]">{l.status}</span></td>
                             </tr>
                           ))}
                         </tbody>
@@ -1311,14 +1326,14 @@
 
                 {/* 15. LISENSI SAAS APLIKASI */}
                 {activeAdminModule === 'license' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <div className="border-b border-slate-800 pb-3">
                       <h2 className="font-extrabold text-base text-white">Modul 15 — Lisensi & Langganan SaaS Kas Warga</h2>
                       <p className="text-slate-400 text-[11px]">Informasi paket berlangganan aplikasi untuk wilayah RT 17 / RW 45.</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-brand-900 via-brand-blue to-slate-900 border border-blue-500/50 p-6 rounded-3xl space-y-4 max-w-md shadow-2xl">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-gradient-to-br from-brand-900 via-brand-blue to-slate-900 border border-blue-500/50 p-6 rounded-3xl space-y-4 max-w-md w-full shadow-2xl">
+                      <div className="flex justify-between items-center flex-wrap gap-2">
                         <KasWargaLogo className="w-10 h-10" textSize="text-[6px]" />
                         <span className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-full">
                           PRO PLAN — AKTIF
@@ -1350,6 +1365,40 @@
 
               </main>
 
+              {/* FIXED BOTTOM NAVIGATION BAR FOR ADMIN MOBILE (Identik dengan PWA Warga) */}
+              <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-brand-900 border-t border-blue-900 flex items-center justify-around text-slate-300 text-[9px] font-bold z-40 shadow-2xl">
+                <button 
+                  onClick={() => setActiveAdminModule('dashboard')} 
+                  className={`flex flex-col items-center gap-0.5 ${activeAdminModule === 'dashboard' ? 'text-amber-400 font-black' : 'hover:text-white'}`}>
+                  <i data-lucide="layout-dashboard" className="w-4 h-4"></i> Dashboard
+                </button>
+                <button 
+                  onClick={() => setActiveAdminModule('residents')} 
+                  className={`flex flex-col items-center gap-0.5 ${activeAdminModule === 'residents' ? 'text-amber-400 font-black' : 'hover:text-white'}`}>
+                  <i data-lucide="users" className="w-4 h-4"></i> Warga
+                </button>
+                <button 
+                  onClick={() => setActiveAdminModule('payments')} 
+                  className={`flex flex-col items-center gap-0.5 relative ${activeAdminModule === 'payments' ? 'text-amber-400 font-black' : 'hover:text-white'}`}>
+                  <i data-lucide="check-square" className="w-4 h-4"></i> Verifikasi
+                  {pendingCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-rose-500 text-white font-black text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center animate-bounce">
+                      {pendingCount}
+                    </span>
+                  )}
+                </button>
+                <button 
+                  onClick={() => setActiveAdminModule('finance')} 
+                  className={`flex flex-col items-center gap-0.5 ${activeAdminModule === 'finance' ? 'text-amber-400 font-black' : 'hover:text-white'}`}>
+                  <i data-lucide="book-open" className="w-4 h-4"></i> Buku Kas
+                </button>
+                <button 
+                  onClick={() => setShowModuleDrawer(true)} 
+                  className="flex flex-col items-center gap-0.5 text-amber-300 hover:text-white">
+                  <i data-lucide="grid" className="w-4 h-4"></i> Menu (15)
+                </button>
+              </div>
+
             </div>
           )}
 
@@ -1377,7 +1426,7 @@
                         setActiveAdminModule(mod.id);
                         setShowModuleDrawer(false);
                       }}
-                      className="p-2.5 rounded-2xl bg-slate-800/90 border border-slate-700 hover:bg-brand-blue text-left flex flex-col justify-between space-y-1.5 transition">
+                      className={`p-2.5 rounded-2xl border text-left flex flex-col justify-between space-y-1.5 transition ${activeAdminModule === mod.id ? 'bg-brand-blue border-amber-400 text-white' : 'bg-slate-800/90 border-slate-700 hover:bg-brand-blue'}`}>
                       <div className="flex justify-between items-center">
                         <i data-lucide={mod.icon} className="w-4 h-4 text-amber-400"></i>
                         {mod.badge > 0 && (
